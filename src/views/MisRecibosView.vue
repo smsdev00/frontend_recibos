@@ -11,6 +11,7 @@ const constantsStore = useConstantsStore()
 const recibos = ref<Recibo[]>([])
 const loading = ref(false)
 const error = ref<string | null>(null)
+const errorCode = ref<string | null>(null)
 const pagination = ref({
   page: 1,
   per_page: 10,
@@ -21,6 +22,7 @@ const pagination = ref({
 async function fetchRecibos() {
   loading.value = true
   error.value = null
+  errorCode.value = null
   try {
     const response = await recibosApi.misRecibos({
       page: pagination.value.page,
@@ -31,8 +33,9 @@ async function fetchRecibos() {
     pagination.value.total = data.total
     pagination.value.pages = data.pages
   } catch (err: unknown) {
-    const axiosError = err as { response?: { data?: { error?: { message?: string } } } }
+    const axiosError = err as { response?: { data?: { error?: { message?: string, code?: string } } } }
     error.value = axiosError.response?.data?.error?.message || 'Error al cargar recibos'
+    errorCode.value = axiosError.response?.data?.error?.code || null
   } finally {
     loading.value = false
   }
@@ -76,8 +79,14 @@ onMounted(() => {
     </div>
 
     <div v-else-if="error" class="error">
-      <p>{{ error }}</p>
-      <button @click="fetchRecibos" class="btn btn-primary">Reintentar</button>
+      <template v-if="errorCode === 'NO_LEGAJO'">
+        <p class="error-title">Sin legajo asignado</p>
+        <p class="error-description">Tu usuario no tiene un legajo asociado. Para ver tus recibos de sueldo, contacta al administrador para que asocie tu legajo a tu cuenta.</p>
+      </template>
+      <template v-else>
+        <p>{{ error }}</p>
+        <button @click="fetchRecibos" class="btn btn-primary">Reintentar</button>
+      </template>
     </div>
 
     <div v-else-if="recibos.length === 0" class="empty">
@@ -173,6 +182,20 @@ onMounted(() => {
 
 .error {
   color: #dc2626;
+}
+
+.error .error-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #92400e;
+  margin-bottom: 0.5rem;
+}
+
+.error .error-description {
+  color: #666;
+  font-size: 0.95rem;
+  max-width: 400px;
+  margin: 0 auto;
 }
 
 .error button {

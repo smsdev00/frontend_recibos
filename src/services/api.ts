@@ -13,7 +13,7 @@ import type {
   ErrorResponse
 } from '@/types'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+const API_URL = import.meta.env.VITE_API_URL || ''
 
 const api = axios.create({
   baseURL: API_URL,
@@ -54,7 +54,10 @@ api.interceptors.response.use(
   async (error: AxiosError<ErrorResponse>) => {
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean }
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    // Solo intentar refresh si es 401 y no es una ruta de auth
+    const isAuthRoute = originalRequest.url?.includes('/auth/')
+
+    if (error.response?.status === 401 && !originalRequest._retry && !isAuthRoute) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject })
@@ -75,13 +78,14 @@ api.interceptors.response.use(
       if (!refreshToken) {
         localStorage.removeItem('access_token')
         localStorage.removeItem('refresh_token')
+        isRefreshing = false
         window.location.href = '/login'
         return Promise.reject(error)
       }
 
       try {
         const response = await axios.post<RefreshTokenResponse>(
-          `${API_URL}/api/auth/refresh`,
+          `${API_URL || ''}/api/auth/refresh`,
           { refresh_token: refreshToken }
         )
         const { access_token } = response.data

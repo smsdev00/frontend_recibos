@@ -17,20 +17,20 @@ const reciboId = computed(() => Number(route.params.id))
 
 const haberes = computed(() => {
   if (!recibo.value) return []
-  return recibo.value.conceptos.filter((c: ReciboConcepto) => c.monto > 0)
+  return recibo.value.conceptos.filter((c: ReciboConcepto) => c.codigo.startsWith('0'))
 })
 
 const deducciones = computed(() => {
   if (!recibo.value) return []
-  return recibo.value.conceptos.filter((c: ReciboConcepto) => c.monto < 0)
+  return recibo.value.conceptos.filter((c: ReciboConcepto) => !c.codigo.startsWith('0'))
 })
 
 const totalHaberes = computed(() => {
-  return haberes.value.reduce((sum: number, c: ReciboConcepto) => sum + c.monto, 0)
+  return haberes.value.reduce((sum: number, c: ReciboConcepto) => sum + Math.abs(c.monto), 0)
 })
 
 const totalDeducciones = computed(() => {
-  return Math.abs(deducciones.value.reduce((sum: number, c: ReciboConcepto) => sum + c.monto, 0))
+  return deducciones.value.reduce((sum: number, c: ReciboConcepto) => sum + Math.abs(c.monto), 0)
 })
 
 const netoAPagar = computed(() => {
