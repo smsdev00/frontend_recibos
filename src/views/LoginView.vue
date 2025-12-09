@@ -13,7 +13,12 @@ const showPassword = ref(false)
 async function handleLogin() {
   const success = await authStore.login(username.value, password.value)
   if (success) {
-    router.push('/dashboard')
+    // Si el rol es 'usuario', ir directamente a mis recibos
+    if (authStore.userRole === 'usuario') {
+      router.push('/mis-recibos')
+    } else {
+      router.push('/dashboard')
+    }
   }
 }
 </script>

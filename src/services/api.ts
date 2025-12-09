@@ -122,6 +122,9 @@ export const authApi = {
 
   me: () => api.get<User>('/api/auth/me'),
 
+  changeMyPassword: (password_actual: string, nueva_password: string) =>
+    api.post('/api/auth/change-password', { password_actual, nueva_password }),
+
   forgotPassword: (email: string) =>
     api.post('/api/auth/forgot-password', { email }),
 
@@ -168,8 +171,7 @@ export const usersApi = {
     email?: string
     role?: string
     activo?: number
-    legajo?: number
-    nombre?: string
+    password?: string
   }) => api.put<User>(`/api/users/${id}`, data),
 
   changePassword: (user_id: number, nueva_password: string) =>
@@ -227,7 +229,7 @@ export const recibosApi = {
   buscar: (params?: {
     page?: number
     per_page?: number
-    legajo?: number
+    dni?: number
     mes?: number
     anio?: number
     tipo?: number

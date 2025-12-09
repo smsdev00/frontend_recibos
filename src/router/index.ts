@@ -120,6 +120,10 @@ router.beforeEach(async (to, _from, next) => {
 
   // Rutas de invitado (login)
   if (to.meta.guest && authStore.isAuthenticated) {
+    // Si el rol es 'usuario', ir a mis-recibos
+    if (authStore.userRole === 'usuario') {
+      return next('/mis-recibos')
+    }
     return next('/dashboard')
   }
 

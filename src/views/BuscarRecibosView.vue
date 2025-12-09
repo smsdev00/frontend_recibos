@@ -13,7 +13,7 @@ const loading = ref(false)
 const error = ref<string | null>(null)
 
 const filtros = ref({
-  legajo: undefined as number | undefined,
+  dni: undefined as number | undefined,
   mes: undefined as number | undefined,
   anio: undefined as number | undefined,
   tipo: undefined as number | undefined,
@@ -52,7 +52,7 @@ async function buscar() {
       page: pagination.value.page,
       per_page: pagination.value.per_page
     }
-    if (filtros.value.legajo) params.legajo = filtros.value.legajo
+    if (filtros.value.dni) params.dni = filtros.value.dni
     if (filtros.value.mes) params.mes = filtros.value.mes
     if (filtros.value.anio) params.anio = filtros.value.anio
     if (filtros.value.tipo) params.tipo = filtros.value.tipo
@@ -73,7 +73,7 @@ async function buscar() {
 
 function limpiarFiltros() {
   filtros.value = {
-    legajo: undefined,
+    dni: undefined,
     mes: undefined,
     anio: undefined,
     tipo: undefined,
@@ -116,11 +116,11 @@ onMounted(() => {
       <form @submit.prevent="buscar" class="filtros-form">
         <div class="filtros-grid">
           <div class="form-group">
-            <label>Legajo</label>
+            <label>DNI</label>
             <input
-              v-model.number="filtros.legajo"
+              v-model.number="filtros.dni"
               type="number"
-              placeholder="Numero de legajo"
+              placeholder="Numero de DNI"
             />
           </div>
           <div class="form-group">

@@ -103,6 +103,12 @@ function goBack() {
   router.back()
 }
 
+function formatFechaActivacion(dateStr: string): string {
+  if (!dateStr) return ''
+  const [year, month, day] = dateStr.split('-')
+  return `${day}/${month}/${year}`
+}
+
 onMounted(() => {
   constantsStore.fetchConstants()
 })
@@ -159,6 +165,9 @@ onMounted(() => {
               type="date"
               required
             />
+            <small v-if="form.fecha_activacion" class="fecha-preview">
+              {{ formatFechaActivacion(form.fecha_activacion) }}
+            </small>
           </div>
         </div>
 
@@ -298,6 +307,11 @@ onMounted(() => {
   outline: none;
   border-color: #4a90a4;
   box-shadow: 0 0 0 3px rgba(74, 144, 164, 0.1);
+}
+
+.fecha-preview {
+  color: #4a90a4;
+  font-weight: 500;
 }
 
 .form-section {

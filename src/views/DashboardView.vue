@@ -69,13 +69,6 @@ const menuItems = computed(() => {
           :to="item.to"
           class="action-card"
         >
-          <div class="action-icon" :data-icon="item.icon">
-            <span v-if="item.icon === 'receipt'">&#128203;</span>
-            <span v-else-if="item.icon === 'search'">&#128269;</span>
-            <span v-else-if="item.icon === 'document'">&#128196;</span>
-            <span v-else-if="item.icon === 'users'">&#128101;</span>
-            <span v-else-if="item.icon === 'settings'">&#9881;</span>
-          </div>
           <h3>{{ item.title }}</h3>
           <p>{{ item.description }}</p>
         </router-link>
@@ -162,11 +155,6 @@ const menuItems = computed(() => {
 .action-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-}
-
-.action-icon {
-  font-size: 2rem;
-  margin-bottom: 0.75rem;
 }
 
 .action-card h3 {

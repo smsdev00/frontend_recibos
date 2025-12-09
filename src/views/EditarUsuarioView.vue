@@ -13,6 +13,24 @@ const authStore = useAuthStore()
 
 const userId = computed(() => Number(route.params.id))
 
+// Verificar si el usuario a editar es administrador y si el usuario actual puede editarlo
+const targetIsAdmin = computed(() => usuario.value?.role === 'administrador')
+const canEditThisUser = computed(() => {
+  // Si el usuario a editar es admin, solo un admin puede editarlo
+  if (targetIsAdmin.value) {
+    return authStore.isAdmin
+  }
+  return true
+})
+const canChangePasswordForThisUser = computed(() => {
+  // Solo mesa de ayuda o admin puede cambiar contraseñas
+  // Pero si el target es admin, solo admin puede cambiar su contraseña
+  if (targetIsAdmin.value) {
+    return authStore.isAdmin
+  }
+  return authStore.isMesaAyuda
+})
+
 const usuario = ref<User | null>(null)
 const loading = ref(false)
 const saving = ref(false)
@@ -22,9 +40,7 @@ const success = ref<string | null>(null)
 const form = ref({
   email: '',
   role: '',
-  activo: 1,
-  legajo: undefined as number | undefined,
-  nombre: ''
+  activo: 1
 })
 
 const passwordForm = ref({
@@ -44,9 +60,7 @@ async function fetchUsuario() {
     form.value = {
       email: response.data.email,
       role: response.data.role || 'usuario',
-      activo: response.data.activo ?? 1,
-      legajo: response.data.legajo,
-      nombre: response.data.nombre || ''
+      activo: response.data.activo ?? 1
     }
   } catch (err: unknown) {
     const axiosError = err as { response?: { data?: { error?: { message?: string } } } }
@@ -57,7 +71,7 @@ async function fetchUsuario() {
 }
 
 async function handleSubmit() {
-  if (!authStore.isAdmin) return
+  if (!authStore.isAdmin || !canEditThisUser.value) return
 
   saving.value = true
   error.value = null
@@ -67,9 +81,7 @@ async function handleSubmit() {
     await usersApi.update(userId.value, {
       email: form.value.email,
       role: form.value.role,
-      activo: form.value.activo,
-      legajo: form.value.legajo,
-      nombre: form.value.nombre || undefined
+      activo: form.value.activo
     })
     success.value = 'Usuario actualizado correctamente'
     setTimeout(() => {
@@ -129,7 +141,7 @@ onMounted(() => {
       <button @click="goBack" class="btn-back">
         &#8592; Volver
       </button>
-      <h1>{{ authStore.isAdmin ? 'Editar' : 'Ver' }} Usuario</h1>
+      <h1>{{ authStore.isAdmin && canEditThisUser ? 'Editar' : 'Ver' }} Usuario</h1>
     </div>
 
     <div v-if="loading" class="loading">
@@ -163,14 +175,14 @@ onMounted(() => {
                 id="email"
                 v-model="form.email"
                 type="email"
-                :disabled="!authStore.isAdmin"
+                :disabled="!authStore.isAdmin || !canEditThisUser"
                 required
               />
             </div>
 
             <div class="form-group">
               <label for="role">Rol</label>
-              <select id="role" v-model="form.role" :disabled="!authStore.isAdmin" required>
+              <select id="role" v-model="form.role" :disabled="!authStore.isAdmin || !canEditThisUser" required>
                 <option
                   v-for="role in constantsStore.roles"
                   :key="role.id"
@@ -183,32 +195,10 @@ onMounted(() => {
 
             <div class="form-group">
               <label for="activo">Estado</label>
-              <select id="activo" v-model.number="form.activo" :disabled="!authStore.isAdmin">
+              <select id="activo" v-model.number="form.activo" :disabled="!authStore.isAdmin || !canEditThisUser">
                 <option :value="1">Activo</option>
                 <option :value="0">Inactivo</option>
               </select>
-            </div>
-
-            <div class="form-group">
-              <label for="legajo">Legajo</label>
-              <input
-                id="legajo"
-                v-model.number="form.legajo"
-                type="number"
-                min="1"
-                :disabled="!authStore.isAdmin"
-              />
-            </div>
-
-            <div class="form-group full-width">
-              <label for="nombre">Nombre Completo</label>
-              <input
-                id="nombre"
-                v-model="form.nombre"
-                type="text"
-                maxlength="200"
-                :disabled="!authStore.isAdmin"
-              />
             </div>
           </div>
 
@@ -220,7 +210,7 @@ onMounted(() => {
             {{ success }}
           </div>
 
-          <div v-if="authStore.isAdmin" class="form-actions">
+          <div v-if="authStore.isAdmin && canEditThisUser" class="form-actions">
             <button type="submit" class="btn btn-primary" :disabled="saving">
               {{ saving ? 'Guardando...' : 'Guardar Cambios' }}
             </button>
@@ -228,7 +218,11 @@ onMounted(() => {
         </form>
       </div>
 
-      <div v-if="authStore.isMesaAyuda" class="form-card">
+      <div v-if="!canEditThisUser && targetIsAdmin" class="warning-card">
+        <p>No tienes permisos para editar a un usuario administrador.</p>
+      </div>
+
+      <div v-if="canChangePasswordForThisUser" class="form-card">
         <h2>Cambiar Contrasena</h2>
         <form @submit.prevent="handleChangePassword">
           <div class="form-grid">
@@ -317,6 +311,15 @@ onMounted(() => {
 
 .error-card {
   color: #dc2626;
+}
+
+.warning-card {
+  background: #fef3c7;
+  border: 1px solid #fcd34d;
+  border-radius: 12px;
+  padding: 1rem 1.5rem;
+  margin-bottom: 1.5rem;
+  color: #92400e;
 }
 
 .form-card {

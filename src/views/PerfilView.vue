@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { useConstantsStore } from '@/stores/constants'
+import { authApi } from '@/services/api'
 
 const authStore = useAuthStore()
 const constantsStore = useConstantsStore()
@@ -10,6 +11,59 @@ const roleName = computed(() => {
   if (!authStore.user?.role) return 'Usuario'
   return constantsStore.getRoleName(authStore.user.role)
 })
+
+// Cambio de contraseña
+const showPasswordForm = ref(false)
+const passwordForm = ref({
+  password_actual: '',
+  nueva_password: '',
+  confirmar_password: ''
+})
+const changingPassword = ref(false)
+const passwordError = ref<string | null>(null)
+const passwordSuccess = ref<string | null>(null)
+
+async function handleChangePassword() {
+  if (passwordForm.value.nueva_password !== passwordForm.value.confirmar_password) {
+    passwordError.value = 'Las contrasenas no coinciden'
+    return
+  }
+
+  if (passwordForm.value.nueva_password.length < 8) {
+    passwordError.value = 'La contrasena debe tener al menos 8 caracteres'
+    return
+  }
+
+  changingPassword.value = true
+  passwordError.value = null
+  passwordSuccess.value = null
+
+  try {
+    await authApi.changeMyPassword(
+      passwordForm.value.password_actual,
+      passwordForm.value.nueva_password
+    )
+    passwordSuccess.value = 'Contrasena actualizada correctamente'
+    passwordForm.value = { password_actual: '', nueva_password: '', confirmar_password: '' }
+    showPasswordForm.value = false
+    setTimeout(() => {
+      passwordSuccess.value = null
+    }, 3000)
+  } catch (err: unknown) {
+    const axiosError = err as { response?: { data?: { detail?: string; error?: { message?: string } } } }
+    passwordError.value = axiosError.response?.data?.detail ||
+                          axiosError.response?.data?.error?.message ||
+                          'Error al cambiar la contrasena'
+  } finally {
+    changingPassword.value = false
+  }
+}
+
+function cancelPasswordChange() {
+  showPasswordForm.value = false
+  passwordForm.value = { password_actual: '', nueva_password: '', confirmar_password: '' }
+  passwordError.value = null
+}
 </script>
 
 <template>
@@ -46,6 +100,73 @@ const roleName = computed(() => {
           <span class="value">{{ roleName }}</span>
         </div>
       </div>
+    </div>
+
+    <!-- Sección cambio de contraseña -->
+    <div class="password-card">
+      <div class="password-header">
+        <h3>Seguridad</h3>
+        <button
+          v-if="!showPasswordForm"
+          @click="showPasswordForm = true"
+          class="btn btn-secondary"
+        >
+          Cambiar Contrasena
+        </button>
+      </div>
+
+      <div v-if="passwordSuccess" class="message success">
+        {{ passwordSuccess }}
+      </div>
+
+      <form v-if="showPasswordForm" @submit.prevent="handleChangePassword" class="password-form">
+        <div class="form-group">
+          <label for="password_actual">Contrasena Actual</label>
+          <input
+            id="password_actual"
+            v-model="passwordForm.password_actual"
+            type="password"
+            required
+            placeholder="Ingrese su contrasena actual"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="nueva_password">Nueva Contrasena</label>
+          <input
+            id="nueva_password"
+            v-model="passwordForm.nueva_password"
+            type="password"
+            minlength="8"
+            required
+            placeholder="Minimo 8 caracteres"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="confirmar_password">Confirmar Nueva Contrasena</label>
+          <input
+            id="confirmar_password"
+            v-model="passwordForm.confirmar_password"
+            type="password"
+            required
+            placeholder="Repetir nueva contrasena"
+          />
+        </div>
+
+        <div v-if="passwordError" class="message error">
+          {{ passwordError }}
+        </div>
+
+        <div class="form-actions">
+          <button type="button" @click="cancelPasswordChange" class="btn btn-secondary">
+            Cancelar
+          </button>
+          <button type="submit" class="btn btn-primary" :disabled="changingPassword">
+            {{ changingPassword ? 'Guardando...' : 'Guardar' }}
+          </button>
+        </div>
+      </form>
     </div>
 
     <div class="acciones-card">
@@ -178,5 +299,115 @@ const roleName = computed(() => {
 .accion-link:hover {
   background: #e5e7eb;
   color: #1a1a2e;
+}
+
+/* Estilos para cambio de contraseña */
+.password-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  margin-bottom: 1.5rem;
+}
+
+.password-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.password-header h3 {
+  color: #1a1a2e;
+  font-size: 1rem;
+  margin: 0;
+}
+
+.password-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  font-weight: 500;
+  color: #333;
+  font-size: 0.9rem;
+}
+
+.form-group input {
+  padding: 0.625rem 0.875rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.95rem;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #4a90a4;
+  box-shadow: 0 0 0 3px rgba(74, 144, 164, 0.1);
+}
+
+.message {
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+.message.error {
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+}
+
+.message.success {
+  background: #dcfce7;
+  border: 1px solid #bbf7d0;
+  color: #166534;
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 0.5rem;
+}
+
+.btn {
+  padding: 0.625rem 1.25rem;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.btn-primary {
+  background: #4a90a4;
+  color: #fff;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #357a8f;
+}
+
+.btn-primary:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.btn-secondary:hover {
+  background: #e5e7eb;
 }
 </style>
