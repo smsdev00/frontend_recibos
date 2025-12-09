@@ -165,6 +165,14 @@ onMounted(() => {
             <span class="label">Username:</span>
             <span class="value">{{ usuario.username }}</span>
           </div>
+          <div v-if="usuario.nombre" class="info-item">
+            <span class="label">Nombre:</span>
+            <span class="value">{{ usuario.nombre }}</span>
+          </div>
+          <div v-if="usuario.legajo" class="info-item">
+            <span class="label">Legajo:</span>
+            <span class="value">{{ usuario.legajo }}</span>
+          </div>
         </div>
 
         <form @submit.prevent="handleSubmit">
@@ -338,7 +346,8 @@ onMounted(() => {
 
 .user-info {
   display: flex;
-  gap: 2rem;
+  flex-wrap: wrap;
+  gap: 1.5rem 2rem;
   margin-bottom: 1.5rem;
   padding-bottom: 1rem;
   border-bottom: 1px solid #eee;

@@ -12,6 +12,7 @@ const constantsStore = useConstantsStore()
 const recibo = ref<ReciboCompleto | null>(null)
 const loading = ref(false)
 const error = ref<string | null>(null)
+const downloadingPdf = ref(false)
 
 const reciboId = computed(() => Number(route.params.id))
 
@@ -79,6 +80,29 @@ function goBack() {
   router.back()
 }
 
+async function descargarPdf() {
+  if (!recibo.value) return
+
+  downloadingPdf.value = true
+  try {
+    const response = await recibosApi.descargarPdf(reciboId.value)
+    const blob = new Blob([response.data], { type: 'application/pdf' })
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `recibo_${recibo.value.mes}-${recibo.value.anio}_${recibo.value.legajo}.pdf`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+  } catch (err: unknown) {
+    const axiosError = err as { response?: { data?: { error?: { message?: string } } } }
+    error.value = axiosError.response?.data?.error?.message || 'Error al descargar el PDF'
+  } finally {
+    downloadingPdf.value = false
+  }
+}
+
 onMounted(() => {
   constantsStore.fetchConstants()
   fetchRecibo()
@@ -92,6 +116,14 @@ onMounted(() => {
         &#8592; Volver
       </button>
       <h1>Detalle del Recibo</h1>
+      <button
+        v-if="recibo"
+        @click="descargarPdf"
+        class="btn btn-pdf"
+        :disabled="downloadingPdf"
+      >
+        {{ downloadingPdf ? 'Descargando...' : 'Descargar PDF' }}
+      </button>
     </div>
 
     <div v-if="loading" class="loading">
@@ -205,6 +237,14 @@ onMounted(() => {
   align-items: center;
   gap: 1rem;
   margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.page-header h1 {
+  flex: 1;
+  color: #1a1a2e;
+  font-size: 1.5rem;
+  margin: 0;
 }
 
 .btn-back {
@@ -218,12 +258,6 @@ onMounted(() => {
 
 .btn-back:hover {
   text-decoration: underline;
-}
-
-.page-header h1 {
-  color: #1a1a2e;
-  font-size: 1.5rem;
-  margin: 0;
 }
 
 .loading,
@@ -404,5 +438,19 @@ onMounted(() => {
 .btn-primary {
   background: #4a90a4;
   color: #fff;
+}
+
+.btn-pdf {
+  background: #dc2626;
+  color: #fff;
+}
+
+.btn-pdf:hover:not(:disabled) {
+  background: #b91c1c;
+}
+
+.btn-pdf:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
 }
 </style>

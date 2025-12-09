@@ -236,7 +236,14 @@ export const recibosApi = {
     activa?: number
   }) => api.get<PaginatedResponse<Recibo>>('/api/recibos/buscar', { params }),
 
-  get: (id: number) => api.get<ReciboCompleto>(`/api/recibos/${id}`)
+  get: (id: number) => api.get<ReciboCompleto>(`/api/recibos/${id}`),
+
+  descargarPdf: async (id: number) => {
+    const response = await api.get(`/api/recibos/${id}/pdf`, {
+      responseType: 'blob'
+    })
+    return response
+  }
 }
 
 // Constants API
