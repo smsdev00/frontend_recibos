@@ -87,6 +87,14 @@ onMounted(() => {
       <form @submit.prevent="buscar" class="filtros-form">
         <div class="filtros-grid">
           <div class="form-group">
+            <label>DNI</label>
+            <input
+              v-model.number="filtros.doc_nro"
+              type="number"
+              placeholder="Numero"
+            />
+          </div>
+          <div class="form-group">
             <label>Legajo</label>
             <input
               v-model.number="filtros.legajo"
@@ -110,14 +118,7 @@ onMounted(() => {
               placeholder="Codigo"
             />
           </div>
-          <div class="form-group">
-            <label>DNI</label>
-            <input
-              v-model.number="filtros.doc_nro"
-              type="number"
-              placeholder="Numero"
-            />
-          </div>
+
           <div class="form-group form-actions">
             <button type="button" @click="limpiarFiltros" class="btn btn-secondary">
               Limpiar
