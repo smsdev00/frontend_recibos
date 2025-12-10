@@ -94,7 +94,7 @@ onMounted(() => {
             <span></span>
           </button>
           <router-link to="/dashboard" class="logo">
-            Sistema de Liquidaciones
+            Sistema de Recibos Web
           </router-link>
         </div>
 

@@ -27,7 +27,7 @@ async function handleLogin() {
   <div class="login-container">
     <div class="login-card">
       <div class="login-header">
-        <h1>Sistema de Liquidaciones</h1>
+        <h1>Sistema de Recibos Web</h1>
         <p>Ingrese sus credenciales para continuar</p>
       </div>
 
