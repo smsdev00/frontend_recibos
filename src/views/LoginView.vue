@@ -21,6 +21,14 @@ async function handleLogin() {
     }
   }
 }
+
+async function isNumberKey(event: KeyboardEvent) {
+  const charCode = event.keyCode || event.which
+  if (charCode < 48 || charCode > 57) {
+    event.preventDefault()
+  }
+}
+
 </script>
 
 <template>
@@ -37,11 +45,13 @@ async function handleLogin() {
           <input
             id="username"
             v-model="username"
-            type="text"
+            type="number"
+            pattern="\d*"
             placeholder="Ingrese su usuario"
             required
             autocomplete="username"
-          />
+            @keypress="isNumberKey"
+        />
         </div>
 
         <div class="form-group">
