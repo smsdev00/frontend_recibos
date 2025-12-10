@@ -45,8 +45,7 @@ async function isNumberKey(event: KeyboardEvent) {
           <input
             id="username"
             v-model="username"
-            type="number"
-            pattern="\d*"
+            type="text"
             placeholder="Ingrese su usuario"
             required
             autocomplete="username"

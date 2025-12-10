@@ -121,12 +121,7 @@ onMounted(() => {
             </div>
           </div>
           <div class="recibo-footer">
-            <span
-              class="estado"
-              :class="{ 'activo': recibo.activa === 1 }"
-            >
-              {{ recibo.activa === 1 ? 'Activo' : 'Inactivo' }}
-            </span>
+
             <button class="btn-ver">Ver detalle</button>
           </div>
         </div>
