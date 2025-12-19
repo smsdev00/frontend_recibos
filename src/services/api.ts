@@ -223,8 +223,13 @@ export const personalApi = {
 
 // Recibos API
 export const recibosApi = {
-  misRecibos: (params?: { page?: number; per_page?: number }) =>
-    api.get<PaginatedResponse<Recibo>>('/api/recibos/mis-recibos', { params }),
+  misRecibos: (params?: {
+    page?: number
+    per_page?: number
+    mes?: number
+    anio?: number
+    tipo?: number
+  }) => api.get<PaginatedResponse<Recibo>>('/api/recibos/mis-recibos', { params }),
 
   buscar: (params?: {
     page?: number

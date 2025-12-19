@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { recibosApi } from '@/services/api'
 import { useConstantsStore } from '@/stores/constants'
@@ -19,6 +19,39 @@ const pagination = ref({
   pages: 0
 })
 
+// Filtros
+const filtros = ref({
+  tipo: undefined as number | undefined,
+  anio: undefined as number | undefined,
+  mes: undefined as number | undefined
+})
+
+// Lista de años (últimos 10 años)
+const aniosDisponibles = computed(() => {
+  const currentYear = new Date().getFullYear()
+  const years = []
+  for (let i = 0; i < 10; i++) {
+    years.push(currentYear - i)
+  }
+  return years
+})
+
+// Lista de meses
+const mesesDisponibles = [
+  { value: 1, label: 'Enero' },
+  { value: 2, label: 'Febrero' },
+  { value: 3, label: 'Marzo' },
+  { value: 4, label: 'Abril' },
+  { value: 5, label: 'Mayo' },
+  { value: 6, label: 'Junio' },
+  { value: 7, label: 'Julio' },
+  { value: 8, label: 'Agosto' },
+  { value: 9, label: 'Septiembre' },
+  { value: 10, label: 'Octubre' },
+  { value: 11, label: 'Noviembre' },
+  { value: 12, label: 'Diciembre' }
+]
+
 async function fetchRecibos() {
   loading.value = true
   error.value = null
@@ -26,7 +59,10 @@ async function fetchRecibos() {
   try {
     const response = await recibosApi.misRecibos({
       page: pagination.value.page,
-      per_page: pagination.value.per_page
+      per_page: pagination.value.per_page,
+      tipo: filtros.value.tipo,
+      anio: filtros.value.anio,
+      mes: filtros.value.mes
     })
     const data: PaginatedResponse<Recibo> = response.data
     recibos.value = data.data
@@ -43,6 +79,19 @@ async function fetchRecibos() {
 
 function goToPage(page: number) {
   pagination.value.page = page
+  fetchRecibos()
+}
+
+function aplicarFiltros() {
+  pagination.value.page = 1
+  fetchRecibos()
+}
+
+function limpiarFiltros() {
+  filtros.value.tipo = undefined
+  filtros.value.anio = undefined
+  filtros.value.mes = undefined
+  pagination.value.page = 1
   fetchRecibos()
 }
 
@@ -72,6 +121,47 @@ onMounted(() => {
   <div class="mis-recibos">
     <div class="page-header">
       <h1>Mis Recibos</h1>
+    </div>
+
+    <!-- Filtros -->
+    <div class="filtros-section">
+      <div class="filtros-grid">
+        <div class="filtro-group">
+          <label for="filtro-tipo">Tipo</label>
+          <select id="filtro-tipo" v-model="filtros.tipo" class="filtro-select">
+            <option :value="undefined">Todos</option>
+            <option
+              v-for="tipo in constantsStore.tiposLiquidacion"
+              :key="tipo.id"
+              :value="tipo.id"
+            >
+              {{ tipo.nombre }}
+            </option>
+          </select>
+        </div>
+        <div class="filtro-group">
+          <label for="filtro-anio">Año</label>
+          <select id="filtro-anio" v-model="filtros.anio" class="filtro-select">
+            <option :value="undefined">Todos</option>
+            <option v-for="anio in aniosDisponibles" :key="anio" :value="anio">
+              {{ anio }}
+            </option>
+          </select>
+        </div>
+        <div class="filtro-group">
+          <label for="filtro-mes">Mes</label>
+          <select id="filtro-mes" v-model="filtros.mes" class="filtro-select">
+            <option :value="undefined">Todos</option>
+            <option v-for="mes in mesesDisponibles" :key="mes.value" :value="mes.value">
+              {{ mes.label }}
+            </option>
+          </select>
+        </div>
+        <div class="filtro-actions">
+          <button @click="aplicarFiltros" class="btn btn-primary">Filtrar</button>
+          <button @click="limpiarFiltros" class="btn btn-secondary">Limpiar</button>
+        </div>
+      </div>
     </div>
 
     <div v-if="loading" class="loading">
@@ -348,5 +438,96 @@ onMounted(() => {
 .btn-primary {
   background: #4a90a4;
   color: #fff;
+}
+
+.btn-primary:hover {
+  background: #3d7a8c;
+}
+
+.btn-secondary {
+  background: #fff;
+  color: #666;
+  border: 1px solid #ddd;
+}
+
+.btn-secondary:hover {
+  border-color: #999;
+  color: #333;
+}
+
+/* Filtros */
+.filtros-section {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 1px solid #eee;
+}
+
+.filtros-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: flex-end;
+}
+
+.filtro-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  min-width: 150px;
+}
+
+.filtro-group label {
+  font-size: 0.85rem;
+  color: #666;
+  font-weight: 500;
+}
+
+.filtro-select {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  background: #fff;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.filtro-select:hover {
+  border-color: #4a90a4;
+}
+
+.filtro-select:focus {
+  outline: none;
+  border-color: #4a90a4;
+  box-shadow: 0 0 0 2px rgba(74, 144, 164, 0.2);
+}
+
+.filtro-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+
+@media (max-width: 768px) {
+  .filtros-grid {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filtro-group {
+    min-width: 100%;
+  }
+
+  .filtro-actions {
+    margin-left: 0;
+    margin-top: 0.5rem;
+  }
+
+  .filtro-actions .btn {
+    flex: 1;
+  }
 }
 </style>
