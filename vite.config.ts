@@ -14,11 +14,11 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': {
-        target: 'http://localhost:8300',
+        target: 'http://api:8300',
         changeOrigin: true
       },
       '/health': {
-        target: 'http://localhost:8300',
+        target: 'http://api:8300',
         changeOrigin: true
       }
     }
