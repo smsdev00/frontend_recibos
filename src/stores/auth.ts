@@ -46,8 +46,19 @@ export const useAuthStore = defineStore('auth', () => {
       }
       return true
     } catch (err: unknown) {
-      const axiosError = err as { response?: { data?: { detail?: string } } }
-      error.value = axiosError.response?.data?.detail || 'Error de autenticacion'
+      const axiosError = err as {
+        response?: { status?: number; data?: { detail?: string } }
+        request?: unknown
+        code?: string
+      }
+
+      if (axiosError.response) {
+        error.value = axiosError.response.data?.detail || 'Credenciales incorrectas'
+      } else if (axiosError.request) {
+        error.value = 'No se pudo conectar al servidor'
+      } else {
+        error.value = 'Error al realizar la solicitud'
+      }
       return false
     } finally {
       loading.value = false
