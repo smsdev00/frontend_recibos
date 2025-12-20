@@ -15,7 +15,7 @@ const userMenuOpen = ref(false)
 const menuItems = computed(() => {
   const items = [
     {
-      name: 'Dashboard',
+      name: 'Inicio',
       to: '/dashboard',
       show: true
     },

@@ -176,7 +176,7 @@ function cancelPasswordChange() {
           Ver Mis Recibos
         </router-link>
         <router-link to="/dashboard" class="accion-link">
-          Ir al Dashboard
+          Ir al Inicio
         </router-link>
       </div>
     </div>
