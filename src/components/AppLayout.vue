@@ -162,7 +162,8 @@ onMounted(() => {
 }
 
 .header {
-  background: #fff;
+  background: #fff url('/logo_provincia.png') no-repeat left center;
+  background-size: contain;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   position: sticky;
   top: 0;
