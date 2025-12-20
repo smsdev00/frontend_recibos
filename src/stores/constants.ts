@@ -9,7 +9,13 @@ export const useConstantsStore = defineStore('constants', () => {
   const error = ref<string | null>(null)
 
   const roles = computed(() => constants.value?.roles || [])
-  const tiposLiquidacion = computed(() => constants.value?.tipos_liquidacion || [])
+  const tiposLiquidacionRaw = computed(() => constants.value?.tipos_liquidacion || [])
+  // Tipos de liquidación con nombre corregido (tipo 1 = "Sueldo")
+  const tiposLiquidacion = computed(() =>
+    tiposLiquidacionRaw.value.map((t: TipoLiquidacionInfo) =>
+      t.id === 1 ? { ...t, nombre: 'Sueldo' } : t
+    )
+  )
   const estadosLiquidacion = computed(() => constants.value?.estados_liquidacion || [])
 
   const getRoleName = (roleId: string): string => {
@@ -18,6 +24,8 @@ export const useConstantsStore = defineStore('constants', () => {
   }
 
   const getTipoLiquidacionName = (tipoId: number): string => {
+    // Tipo 1 siempre se muestra como "Sueldo"
+    if (tipoId === 1) return 'Sueldo'
     const tipo = tiposLiquidacion.value.find((t: TipoLiquidacionInfo) => t.id === tipoId)
     return tipo?.nombre || `Tipo ${tipoId}`
   }
