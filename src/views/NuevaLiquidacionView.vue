@@ -136,7 +136,7 @@ onMounted(() => {
           </div>
 
           <div class="form-group">
-            <label for="anio">Anio *</label>
+            <label for="anio">Año *</label>
             <select id="anio" v-model.number="form.anio" required>
               <option v-for="anio in anios" :key="anio" :value="anio">
                 {{ anio }}

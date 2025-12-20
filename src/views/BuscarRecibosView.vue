@@ -133,7 +133,7 @@ onMounted(() => {
             </select>
           </div>
           <div class="form-group">
-            <label>Anio</label>
+            <label>Año</label>
             <select v-model.number="filtros.anio">
               <option :value="undefined">Todos</option>
               <option v-for="anio in anios" :key="anio" :value="anio">
