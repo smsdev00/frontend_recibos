@@ -153,7 +153,7 @@ async function isNumberKey(event: KeyboardEvent) {
 
 .form-group input:focus {
   outline: none;
-  border-color: #4a90a4;
+  border-color: #00AEC3;
   box-shadow: 0 0 0 3px rgba(74, 144, 164, 0.1);
 }
 
@@ -174,7 +174,7 @@ async function isNumberKey(event: KeyboardEvent) {
   transform: translateY(-50%);
   background: none;
   border: none;
-  color: #4a90a4;
+  color: #00AEC3;
   cursor: pointer;
   font-size: 0.85rem;
   padding: 0.25rem;
@@ -194,7 +194,7 @@ async function isNumberKey(event: KeyboardEvent) {
 }
 
 .btn-login {
-  background: linear-gradient(135deg, #4a90a4 0%, #357a8f 100%);
+  background: linear-gradient(135deg, #00AEC3 0%, #009AAD 100%);
   color: #fff;
   border: none;
   padding: 0.875rem;

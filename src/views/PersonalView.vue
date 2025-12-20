@@ -253,7 +253,7 @@ onMounted(() => {
 
 .form-group input:focus {
   outline: none;
-  border-color: #4a90a4;
+  border-color: #00AEC3;
 }
 
 .form-actions {
@@ -271,7 +271,7 @@ onMounted(() => {
 }
 
 .btn-primary {
-  background: #4a90a4;
+  background: #00AEC3;
   color: #fff;
 }
 
@@ -327,7 +327,7 @@ onMounted(() => {
 }
 
 .personal-table th {
-  color: #666;
+  color: #00AEC3;
   font-weight: 500;
   font-size: 0.85rem;
   white-space: nowrap;
@@ -339,7 +339,7 @@ onMounted(() => {
 
 .personal-table .legajo {
   font-weight: 600;
-  color: #4a90a4;
+  color: #00AEC3;
 }
 
 .personal-table .mono {
@@ -370,8 +370,8 @@ onMounted(() => {
 }
 
 .btn-page:hover:not(:disabled) {
-  border-color: #4a90a4;
-  color: #4a90a4;
+  border-color: #00AEC3;
+  color: #00AEC3;
 }
 
 .btn-page:disabled {

@@ -300,7 +300,7 @@ onMounted(() => {
 .form-group input:focus,
 .form-group select:focus {
   outline: none;
-  border-color: #4a90a4;
+  border-color: #00AEC3;
 }
 
 .filtros-actions {
@@ -318,7 +318,7 @@ onMounted(() => {
 }
 
 .btn-primary {
-  background: #4a90a4;
+  background: #00AEC3;
   color: #fff;
 }
 
@@ -379,7 +379,7 @@ onMounted(() => {
 }
 
 .recibos-table th {
-  color: #666;
+  color: #00AEC3;
   font-weight: 500;
   font-size: 0.85rem;
 }
@@ -413,8 +413,8 @@ onMounted(() => {
 
 .btn-ver {
   background: transparent;
-  border: 1px solid #4a90a4;
-  color: #4a90a4;
+  border: 1px solid #00AEC3;
+  color: #00AEC3;
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
   font-size: 0.8rem;
@@ -422,7 +422,7 @@ onMounted(() => {
 }
 
 .btn-ver:hover {
-  background: #4a90a4;
+  background: #00AEC3;
   color: #fff;
 }
 
@@ -445,8 +445,8 @@ onMounted(() => {
 }
 
 .btn-page:hover:not(:disabled) {
-  border-color: #4a90a4;
-  color: #4a90a4;
+  border-color: #00AEC3;
+  color: #00AEC3;
 }
 
 .btn-page:disabled {

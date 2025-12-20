@@ -250,7 +250,7 @@ onMounted(() => {
 .btn-back {
   background: transparent;
   border: none;
-  color: #4a90a4;
+  color: #00AEC3;
   font-size: 1rem;
   cursor: pointer;
   padding: 0.5rem;
@@ -371,7 +371,7 @@ onMounted(() => {
 }
 
 .conceptos-table th {
-  color: #666;
+  color: #00AEC3;
   font-weight: 500;
   font-size: 0.85rem;
 }
@@ -436,7 +436,7 @@ onMounted(() => {
 }
 
 .btn-primary {
-  background: #4a90a4;
+  background: #00AEC3;
   color: #fff;
 }
 

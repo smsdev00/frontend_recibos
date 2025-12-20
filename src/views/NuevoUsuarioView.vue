@@ -190,7 +190,7 @@ onMounted(() => {
 .btn-back {
   background: transparent;
   border: none;
-  color: #4a90a4;
+  color: #00AEC3;
   font-size: 1rem;
   cursor: pointer;
   padding: 0.5rem;
@@ -253,7 +253,7 @@ onMounted(() => {
 .form-group input:focus,
 .form-group select:focus {
   outline: none;
-  border-color: #4a90a4;
+  border-color: #00AEC3;
   box-shadow: 0 0 0 3px rgba(74, 144, 164, 0.1);
 }
 
@@ -285,12 +285,12 @@ onMounted(() => {
 }
 
 .btn-primary {
-  background: #4a90a4;
+  background: #00AEC3;
   color: #fff;
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: #357a8f;
+  background: #009AAD;
 }
 
 .btn-primary:disabled {

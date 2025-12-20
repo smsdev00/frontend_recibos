@@ -381,8 +381,8 @@ onMounted(() => {
 
 .btn-ver {
   background: transparent;
-  border: 1px solid #4a90a4;
-  color: #4a90a4;
+  border: 1px solid #00AEC3;
+  color: #00AEC3;
   padding: 0.375rem 0.75rem;
   border-radius: 6px;
   font-size: 0.85rem;
@@ -391,7 +391,7 @@ onMounted(() => {
 }
 
 .btn-ver:hover {
-  background: #4a90a4;
+  background: #00AEC3;
   color: #fff;
 }
 
@@ -413,8 +413,8 @@ onMounted(() => {
 }
 
 .btn-page:hover:not(:disabled) {
-  border-color: #4a90a4;
-  color: #4a90a4;
+  border-color: #00AEC3;
+  color: #00AEC3;
 }
 
 .btn-page:disabled {
@@ -436,7 +436,7 @@ onMounted(() => {
 }
 
 .btn-primary {
-  background: #4a90a4;
+  background: #00AEC3;
   color: #fff;
 }
 
@@ -496,12 +496,12 @@ onMounted(() => {
 }
 
 .filtro-select:hover {
-  border-color: #4a90a4;
+  border-color: #00AEC3;
 }
 
 .filtro-select:focus {
   outline: none;
-  border-color: #4a90a4;
+  border-color: #00AEC3;
   box-shadow: 0 0 0 2px rgba(74, 144, 164, 0.2);
 }
 
