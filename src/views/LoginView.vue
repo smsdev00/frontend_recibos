@@ -33,7 +33,9 @@ async function isNumberKey(event: KeyboardEvent) {
 
 <template>
   <div class="login-container">
-    <div class="login-card">
+    <div class="login-wrapper">
+      <div class="login-top-header"></div>
+      <div class="login-card">
       <div class="login-header">
         <h1>Sistema de Recibos Web</h1>
         <p>Ingrese sus credenciales para continuar</p>
@@ -87,6 +89,7 @@ async function isNumberKey(event: KeyboardEvent) {
         </button>
       </form>
     </div>
+    </div>
   </div>
 </template>
 
@@ -100,13 +103,26 @@ async function isNumberKey(event: KeyboardEvent) {
   padding: 1rem;
 }
 
+.login-wrapper {
+  width: 100%;
+  max-width: 400px;
+}
+
+.login-top-header {
+  height: 60px;
+  background-image: url('/logo_provincia.png');
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: left center;
+  margin-bottom: 1rem;
+}
+
 .login-card {
   background: #fff;
   border-radius: 12px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
   padding: 2.5rem;
   width: 100%;
-  max-width: 400px;
 }
 
 .login-header {
