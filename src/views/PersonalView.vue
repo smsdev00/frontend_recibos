@@ -160,7 +160,7 @@ onMounted(() => {
               <th>Agrup.</th>
               <th>Cat.</th>
               <th>Hs</th>
-              <th>Anios</th>
+              <th>Años</th>
               <th>Ley</th>
             </tr>
           </thead>
