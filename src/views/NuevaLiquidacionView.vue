@@ -162,7 +162,7 @@ function connectWebSocket(liquidacionId: number) {
         progressPercentage.value = 100
         loading.value = false
 
-        success.value = `Liquidacion procesada exitosamente. Registros de personal: ${data.registros_personal}, Recibos: ${data.registros_recibos}`
+        success.value = `Liquidacion procesada exitosamente. Registros de personal: ${formatNumber(data.registros_personal)}, Recibos: ${formatNumber(data.registros_recibos)}`
 
         setTimeout(() => {
           disconnectWebSocket()
@@ -200,6 +200,10 @@ function formatFechaActivacion(dateStr: string): string {
   if (!dateStr) return ''
   const [year, month, day] = dateStr.split('-')
   return `${day}/${month}/${year}`
+}
+
+function formatNumber(num: number): string {
+  return num.toLocaleString('es-AR')
 }
 
 onMounted(() => {
@@ -311,7 +315,7 @@ onUnmounted(() => {
           <div class="progress-header">
             <span class="progress-status">{{ progressStatus }}</span>
             <span v-if="progressItemType" class="progress-detail">
-              {{ progressLabel }}: {{ progressCurrent }} / {{ progressTotal }}
+              {{ progressLabel }}: {{ formatNumber(progressCurrent) }} / {{ formatNumber(progressTotal) }}
             </span>
           </div>
           <div class="progress-bar-container">
