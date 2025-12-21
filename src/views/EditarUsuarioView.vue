@@ -251,7 +251,7 @@ onMounted(() => {
       </div>
 
       <div v-if="canChangePasswordForThisUser" class="form-card">
-        <h2>Cambiar Contrasena</h2>
+        <h2>Cambiar Contraseña</h2>
         <form @submit.prevent="handleChangePassword">
           <div class="form-grid">
             <div class="form-group">
@@ -288,7 +288,7 @@ onMounted(() => {
 
           <div class="form-actions">
             <button type="submit" class="btn btn-primary" :disabled="changingPassword">
-              {{ changingPassword ? 'Cambiando...' : 'Cambiar Contrasena' }}
+              {{ changingPassword ? 'Cambiando...' : 'Cambiar Contraseña' }}
             </button>
           </div>
         </form>

@@ -111,7 +111,7 @@ function cancelPasswordChange() {
           @click="showPasswordForm = true"
           class="btn btn-secondary"
         >
-          Cambiar Contrasena
+          Cambiar Contraseña
         </button>
       </div>
 
