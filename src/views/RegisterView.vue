@@ -20,12 +20,12 @@ async function handleRegister() {
 
   // Validar passwords
   if (password.value !== confirmPassword.value) {
-    error.value = 'Las contrasenas no coinciden'
+    error.value = 'Las contraseñas no coinciden'
     return
   }
 
   if (password.value.length < 6) {
-    error.value = 'La contrasena debe tener al menos 6 caracteres'
+    error.value = 'La contraseña debe tener al menos 6 caracteres'
     return
   }
 
@@ -118,13 +118,13 @@ function goToLogin() {
           </div>
 
           <div class="form-group">
-            <label for="password">Contrasena</label>
+            <label for="password">Contraseña</label>
             <div class="password-input">
               <input
                 id="password"
                 v-model="password"
                 :type="showPassword ? 'text' : 'password'"
-                placeholder="Ingrese su contrasena"
+                placeholder="Ingrese su contraseña"
                 required
                 minlength="6"
               />
@@ -139,13 +139,13 @@ function goToLogin() {
           </div>
 
           <div class="form-group">
-            <label for="confirmPassword">Confirmar Contrasena</label>
+            <label for="confirmPassword">Confirmar Contraseña</label>
             <div class="password-input">
               <input
                 id="confirmPassword"
                 v-model="confirmPassword"
                 :type="showPassword ? 'text' : 'password'"
-                placeholder="Confirme su contrasena"
+                placeholder="Confirme su contraseña"
                 required
                 minlength="6"
               />

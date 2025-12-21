@@ -66,7 +66,7 @@ async function isNumberKey(event: KeyboardEvent) {
               id="password"
               v-model="password"
               :type="showPassword ? 'text' : 'password'"
-              placeholder="Ingrese su contrasena"
+              placeholder="Ingrese su contraseña"
               required
               autocomplete="current-password"
             />

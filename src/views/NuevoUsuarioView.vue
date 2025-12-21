@@ -23,12 +23,12 @@ const form = ref({
 
 async function handleSubmit() {
   if (form.value.password !== form.value.confirmPassword) {
-    error.value = 'Las contrasenas no coinciden'
+    error.value = 'Las contraseñas no coinciden'
     return
   }
 
   if (form.value.password.length < 8) {
-    error.value = 'La contrasena debe tener al menos 8 caracteres'
+    error.value = 'La contraseña debe tener al menos 8 caracteres'
     return
   }
 
@@ -117,7 +117,7 @@ onMounted(() => {
               v-model="form.confirmPassword"
               type="password"
               required
-              placeholder="Repetir contrasena"
+              placeholder="Repetir contraseña"
             />
           </div>
 

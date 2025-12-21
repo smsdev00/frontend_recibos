@@ -25,12 +25,12 @@ const passwordSuccess = ref<string | null>(null)
 
 async function handleChangePassword() {
   if (passwordForm.value.nueva_password !== passwordForm.value.confirmar_password) {
-    passwordError.value = 'Las contrasenas no coinciden'
+    passwordError.value = 'Las contraseñas no coinciden'
     return
   }
 
   if (passwordForm.value.nueva_password.length < 8) {
-    passwordError.value = 'La contrasena debe tener al menos 8 caracteres'
+    passwordError.value = 'La contraseña debe tener al menos 8 caracteres'
     return
   }
 
@@ -53,7 +53,7 @@ async function handleChangePassword() {
     const axiosError = err as { response?: { data?: { detail?: string; error?: { message?: string } } } }
     passwordError.value = axiosError.response?.data?.detail ||
                           axiosError.response?.data?.error?.message ||
-                          'Error al cambiar la contrasena'
+                          'Error al cambiar la contraseña'
   } finally {
     changingPassword.value = false
   }
@@ -127,7 +127,7 @@ function cancelPasswordChange() {
             v-model="passwordForm.password_actual"
             type="password"
             required
-            placeholder="Ingrese su contrasena actual"
+            placeholder="Ingrese su contraseña actual"
           />
         </div>
 
@@ -150,7 +150,7 @@ function cancelPasswordChange() {
             v-model="passwordForm.confirmar_password"
             type="password"
             required
-            placeholder="Repetir nueva contrasena"
+            placeholder="Repetir nueva contraseña"
           />
         </div>
 
