@@ -79,7 +79,7 @@ function cancelPasswordChange() {
 
       <div class="perfil-info">
         <h2>{{ authStore.user.nombre || authStore.user.username }}</h2>
-        <span class="role-badge">{{ roleName }}</span>
+        <span v-if="authStore.user?.role !== 'usuario'" class="role-badge">{{ roleName }}</span>
       </div>
 
       <div class="info-grid">
@@ -95,7 +95,7 @@ function cancelPasswordChange() {
           <span class="label">Legajo</span>
           <span class="value">{{ authStore.user.legajo }}</span>
         </div>
-        <div class="info-item">
+        <div class="info-item" v-if="authStore.user?.role !== 'usuario'">
           <span class="label">Rol</span>
           <span class="value">{{ roleName }}</span>
         </div>

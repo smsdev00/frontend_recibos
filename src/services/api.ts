@@ -178,7 +178,9 @@ export const usersApi = {
   }) => api.put<User>(`/api/users/${id}`, data),
 
   changePassword: (user_id: number, nueva_password: string) =>
-    api.post('/api/users/change-password', { user_id, nueva_password })
+    api.post('/api/users/change-password', { user_id, nueva_password }),
+
+  delete: (id: number) => api.delete(`/api/users/${id}`)
 }
 
 // Liquidaciones API

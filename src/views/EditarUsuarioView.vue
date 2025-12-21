@@ -51,6 +51,11 @@ const changingPassword = ref(false)
 const passwordError = ref<string | null>(null)
 const passwordSuccess = ref<string | null>(null)
 
+// Eliminar usuario
+const showDeleteModal = ref(false)
+const deleting = ref(false)
+const deleteError = ref<string | null>(null)
+
 async function fetchUsuario() {
   loading.value = true
   error.value = null
@@ -122,6 +127,21 @@ async function handleChangePassword() {
     passwordError.value = axiosError.response?.data?.error?.message || 'Error al cambiar la contrasena'
   } finally {
     changingPassword.value = false
+  }
+}
+
+async function handleDelete() {
+  deleting.value = true
+  deleteError.value = null
+
+  try {
+    await usersApi.delete(userId.value)
+    router.push('/usuarios')
+  } catch (err: unknown) {
+    const axiosError = err as { response?: { data?: { error?: { message?: string } } } }
+    deleteError.value = axiosError.response?.data?.error?.message || 'Error al eliminar el usuario'
+  } finally {
+    deleting.value = false
   }
 }
 
@@ -272,6 +292,37 @@ onMounted(() => {
             </button>
           </div>
         </form>
+      </div>
+
+      <!-- Zona de peligro: Eliminar usuario (solo admin) -->
+      <div v-if="authStore.isAdmin && canEditThisUser" class="form-card danger-zone">
+        <h2>Zona de Peligro</h2>
+        <p>Eliminar este usuario lo borrara permanentemente.</p>
+        <button @click="showDeleteModal = true" class="btn btn-danger">
+          Eliminar Usuario
+        </button>
+      </div>
+
+      <!-- Modal de confirmación -->
+      <div v-if="showDeleteModal" class="modal-overlay" @click.self="showDeleteModal = false">
+        <div class="modal">
+          <h3>Confirmar Eliminacion</h3>
+          <p>Esta seguro que desea eliminar al usuario <strong>{{ usuario?.username }}</strong>?</p>
+          <p class="modal-warning">Esta accion no se puede deshacer.</p>
+
+          <div v-if="deleteError" class="message error">
+            {{ deleteError }}
+          </div>
+
+          <div class="modal-actions">
+            <button @click="showDeleteModal = false" class="btn btn-secondary" :disabled="deleting">
+              Cancelar
+            </button>
+            <button @click="handleDelete" class="btn btn-danger" :disabled="deleting">
+              {{ deleting ? 'Eliminando...' : 'Eliminar' }}
+            </button>
+          </div>
+        </div>
       </div>
     </template>
   </div>
@@ -463,5 +514,89 @@ onMounted(() => {
 .btn-primary:disabled {
   opacity: 0.7;
   cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: #e5e7eb;
+}
+
+.btn-danger {
+  background: #dc2626;
+  color: #fff;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: #b91c1c;
+}
+
+.btn-danger:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Zona de peligro */
+.danger-zone {
+  border: 1px solid #fecaca;
+  background: #fef2f2;
+}
+
+.danger-zone h2 {
+  color: #dc2626;
+}
+
+.danger-zone p {
+  color: #7f1d1d;
+  margin-bottom: 1rem;
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: #fff;
+  border-radius: 12px;
+  padding: 2rem;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.modal h3 {
+  color: #1a1a2e;
+  margin-bottom: 1rem;
+}
+
+.modal p {
+  color: #666;
+  margin-bottom: 0.5rem;
+}
+
+.modal-warning {
+  color: #dc2626;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 1.5rem;
 }
 </style>
