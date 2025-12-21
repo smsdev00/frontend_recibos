@@ -129,7 +129,10 @@ export const authApi = {
     api.post('/api/auth/forgot-password', { email }),
 
   resetPassword: (token: string, new_password: string) =>
-    api.post('/api/auth/reset-password', { token, new_password })
+    api.post('/api/auth/reset-password', { token, new_password }),
+
+  register: (dni: number, legajo: number, email: string, password: string) =>
+    api.post<{ mensaje: string; username: string }>('/api/auth/register', { dni, legajo, email, password })
 }
 
 // Users API

@@ -10,6 +10,10 @@ const username = ref('')
 const password = ref('')
 const showPassword = ref(false)
 
+function goToRegister() {
+  router.push('/register')
+}
+
 async function handleLogin() {
   const success = await authStore.login(username.value, password.value)
   if (success) {
@@ -87,6 +91,11 @@ async function isNumberKey(event: KeyboardEvent) {
         >
           {{ authStore.loading ? 'Ingresando...' : 'Ingresar' }}
         </button>
+
+        <div class="register-link">
+          No tiene cuenta?
+          <a href="#" @click.prevent="goToRegister">Registrarse</a>
+        </div>
       </form>
     </div>
     </div>
@@ -229,5 +238,22 @@ async function isNumberKey(event: KeyboardEvent) {
 .btn-login:disabled {
   opacity: 0.7;
   cursor: not-allowed;
+}
+
+.register-link {
+  text-align: center;
+  color: #666;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+}
+
+.register-link a {
+  color: #00AEC3;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.register-link a:hover {
+  text-decoration: underline;
 }
 </style>
