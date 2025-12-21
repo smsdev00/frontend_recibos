@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { liquidacionesApi } from '@/services/api'
 import { useConstantsStore } from '@/stores/constants'
@@ -11,6 +11,21 @@ const constantsStore = useConstantsStore()
 const loading = ref(false)
 const error = ref<string | null>(null)
 const success = ref<string | null>(null)
+
+// Estado del progreso WebSocket
+const showProgress = ref(false)
+const progressStatus = ref('')
+const progressItemType = ref<'personal' | 'recibos' | null>(null)
+const progressCurrent = ref(0)
+const progressTotal = ref(0)
+const progressPercentage = ref(0)
+let websocket: WebSocket | null = null
+
+const progressLabel = computed(() => {
+  if (progressItemType.value === 'personal') return 'Personal'
+  if (progressItemType.value === 'recibos') return 'Recibos'
+  return ''
+})
 
 const form = ref<{
   mes: number
@@ -61,6 +76,21 @@ function handleFileRecibos(event: Event) {
   }
 }
 
+function getWebSocketUrl(liquidacionId: number): string {
+  const token = localStorage.getItem('access_token')
+  const apiUrl = import.meta.env.VITE_API_URL || window.location.origin
+  const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+  const baseUrl = apiUrl.replace(/^https?:/, wsProtocol)
+  return `${baseUrl}/ws/liquidacion/${liquidacionId}?token=${token}`
+}
+
+function disconnectWebSocket() {
+  if (websocket) {
+    websocket.close()
+    websocket = null
+  }
+}
+
 async function handleSubmit() {
   const archivoPersonal = form.value.archivo_personal
   const archivoRecibos = form.value.archivo_recibos
@@ -73,6 +103,12 @@ async function handleSubmit() {
   loading.value = true
   error.value = null
   success.value = null
+  showProgress.value = true
+  progressStatus.value = 'Subiendo archivos...'
+  progressItemType.value = null
+  progressCurrent.value = 0
+  progressTotal.value = 0
+  progressPercentage.value = 0
 
   try {
     const formData = new FormData()
@@ -83,19 +119,76 @@ async function handleSubmit() {
     formData.append('tipo', String(form.value.tipo))
     formData.append('fecha_activacion', form.value.fecha_activacion)
 
+    // Enviamos la petición - retorna inmediatamente con el liquidacion_id
     const response = await liquidacionesApi.procesar(formData)
     const data = response.data
 
-    success.value = `${data.mensaje}. Registros de personal: ${data.registros_personal}, Recibos: ${data.registros_recibos}`
+    // Conectar al WebSocket para recibir progreso en tiempo real
+    if (data.liquidacion_id) {
+      connectWebSocket(data.liquidacion_id)
+      progressStatus.value = 'Conectando al servidor...'
+    }
 
-    setTimeout(() => {
-      router.push('/liquidaciones')
-    }, 3000)
   } catch (err: unknown) {
     const axiosError = err as { response?: { data?: { error?: { message?: string } } } }
     error.value = axiosError.response?.data?.error?.message || 'Error al procesar la liquidacion'
-  } finally {
+    showProgress.value = false
     loading.value = false
+  }
+}
+
+function connectWebSocket(liquidacionId: number) {
+  const wsUrl = getWebSocketUrl(liquidacionId)
+  websocket = new WebSocket(wsUrl)
+
+  websocket.onopen = () => {
+    console.log('WebSocket conectado para liquidacion', liquidacionId)
+    progressStatus.value = 'Procesando...'
+  }
+
+  websocket.onmessage = (event) => {
+    try {
+      const data = JSON.parse(event.data)
+
+      if (data.type === 'status') {
+        progressStatus.value = data.message
+      } else if (data.type === 'progress') {
+        progressItemType.value = data.item_type
+        progressCurrent.value = data.current
+        progressTotal.value = data.total
+        progressPercentage.value = data.percentage
+      } else if (data.type === 'complete') {
+        progressStatus.value = 'Completado'
+        progressPercentage.value = 100
+        loading.value = false
+
+        success.value = `Liquidacion procesada exitosamente. Registros de personal: ${data.registros_personal}, Recibos: ${data.registros_recibos}`
+
+        setTimeout(() => {
+          disconnectWebSocket()
+          showProgress.value = false
+          router.push('/liquidaciones')
+        }, 2000)
+      } else if (data.type === 'error') {
+        error.value = data.message || 'Error durante el procesamiento'
+        showProgress.value = false
+        loading.value = false
+        disconnectWebSocket()
+      }
+    } catch (e) {
+      console.error('Error parseando mensaje WebSocket:', e)
+    }
+  }
+
+  websocket.onerror = (event) => {
+    console.error('Error WebSocket:', event)
+    error.value = 'Error de conexion con el servidor'
+    showProgress.value = false
+    loading.value = false
+  }
+
+  websocket.onclose = () => {
+    console.log('WebSocket desconectado')
   }
 }
 
@@ -111,6 +204,10 @@ function formatFechaActivacion(dateStr: string): string {
 
 onMounted(() => {
   constantsStore.fetchConstants()
+})
+
+onUnmounted(() => {
+  disconnectWebSocket()
 })
 </script>
 
@@ -207,6 +304,23 @@ onMounted(() => {
             </div>
             <small>Archivo TXT con datos de recibos</small>
           </div>
+        </div>
+
+        <!-- Barra de progreso -->
+        <div v-if="showProgress" class="progress-section">
+          <div class="progress-header">
+            <span class="progress-status">{{ progressStatus }}</span>
+            <span v-if="progressItemType" class="progress-detail">
+              {{ progressLabel }}: {{ progressCurrent }} / {{ progressTotal }}
+            </span>
+          </div>
+          <div class="progress-bar-container">
+            <div
+              class="progress-bar"
+              :style="{ width: progressPercentage + '%' }"
+            ></div>
+          </div>
+          <div class="progress-percentage">{{ progressPercentage.toFixed(1) }}%</div>
         </div>
 
         <div v-if="error" class="message error">
@@ -418,5 +532,53 @@ onMounted(() => {
 
 .btn-secondary:hover {
   background: #e5e7eb;
+}
+
+/* Barra de progreso */
+.progress-section {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.progress-status {
+  font-weight: 500;
+  color: #1a1a2e;
+}
+
+.progress-detail {
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.progress-bar-container {
+  background: #e2e8f0;
+  border-radius: 4px;
+  height: 12px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.progress-bar {
+  background: linear-gradient(90deg, #00AEC3, #009AAD);
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.progress-percentage {
+  text-align: right;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #00AEC3;
 }
 </style>
