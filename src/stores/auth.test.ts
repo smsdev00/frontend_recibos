@@ -119,7 +119,7 @@ describe('useAuthStore', () => {
           user: { id: 1, username: 'admin', email: 'admin@test.com', role: 'administrador' },
         },
       }
-      vi.mocked(authApi.login).mockResolvedValue(mockResponse)
+      vi.mocked(authApi.login).mockResolvedValue(mockResponse as any)
 
       const store = useAuthStore()
       const result = await store.login('admin', 'password')
@@ -165,7 +165,7 @@ describe('useAuthStore', () => {
       localStorageMock.store['access_token'] = 'some-token'
       localStorageMock.store['refresh_token'] = 'some-refresh-token'
 
-      vi.mocked(authApi.logout).mockResolvedValue({})
+      vi.mocked(authApi.logout).mockResolvedValue({} as any)
 
       await store.logout()
 
@@ -202,7 +202,7 @@ describe('useAuthStore', () => {
     it('debería obtener el usuario correctamente', async () => {
       localStorageMock.store['access_token'] = 'valid-token'
       const mockUser = { id: 1, username: 'admin', email: 'admin@test.com', role: 'administrador' }
-      vi.mocked(authApi.me).mockResolvedValue({ data: mockUser })
+      vi.mocked(authApi.me).mockResolvedValue({ data: mockUser } as any)
 
       const store = useAuthStore()
       const result = await store.fetchUser()
