@@ -203,7 +203,14 @@ export const liquidacionesApi = {
   delete: (id: number) => api.delete(`/api/liquidaciones/${id}`),
 
   toggleActiva: (id: number) =>
-    api.patch<{ mensaje: string; activa: boolean }>(`/api/liquidaciones/${id}/toggle-activa`)
+    api.patch<{ mensaje: string; activa: boolean }>(`/api/liquidaciones/${id}/toggle-activa`),
+
+  descargarArchivos: async (id: number) => {
+    const response = await api.get(`/api/liquidaciones/${id}/descargar`, {
+      responseType: 'blob'
+    })
+    return response
+  }
 }
 
 // Personal API

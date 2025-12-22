@@ -102,6 +102,29 @@ async function eliminar(liq: Liquidacion) {
   }
 }
 
+async function descargarArchivos(liq: Liquidacion) {
+  if (!authStore.isAdmin) return
+  actionLoading.value = liq.id
+  try {
+    const response = await liquidacionesApi.descargarArchivos(liq.id)
+    const blob = new Blob([response.data], { type: 'application/zip' })
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    const mes = String(liq.mes).padStart(2, '0')
+    link.download = `liquidacion_${mes}_${liq.anio}_tipo${liq.tipo}.zip`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+  } catch (err: unknown) {
+    const axiosError = err as { response?: { data?: { error?: { message?: string } } } }
+    alert(axiosError.response?.data?.error?.message || 'Error al descargar archivos')
+  } finally {
+    actionLoading.value = null
+  }
+}
+
 function goToPage(page: number) {
   pagination.value.page = page
   fetchLiquidaciones()
@@ -260,6 +283,15 @@ onMounted(() => {
                 :title="liq.activa === 1 ? 'Desactivar' : 'Activar'"
               >
                 {{ liq.activa === 1 ? 'Desactivar' : 'Activar' }}
+              </button>
+              <button
+                v-if="authStore.isAdmin && liq.estado === 3"
+                @click="descargarArchivos(liq)"
+                class="btn-action btn-download"
+                :disabled="actionLoading === liq.id"
+                title="Descargar archivos ZIP"
+              >
+                Descargar
               </button>
               <button
                 v-if="authStore.isAdmin"
@@ -490,6 +522,15 @@ onMounted(() => {
 
 .btn-action.btn-danger:hover:not(:disabled) {
   background: #fee2e2;
+}
+
+.btn-action.btn-download {
+  color: #0369a1;
+  border-color: #7dd3fc;
+}
+
+.btn-action.btn-download:hover:not(:disabled) {
+  background: #e0f2fe;
 }
 
 .pagination {
