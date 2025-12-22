@@ -92,6 +92,7 @@ onMounted(() => {
               v-model.number="filtros.doc_nro"
               type="number"
               placeholder="Numero"
+              min="100000"
             />
           </div>
           <div class="form-group">
@@ -100,6 +101,7 @@ onMounted(() => {
               v-model.number="filtros.legajo"
               type="number"
               placeholder="Numero"
+              min="100000"
             />
           </div>
           <div class="form-group">

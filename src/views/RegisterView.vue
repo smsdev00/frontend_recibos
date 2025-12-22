@@ -90,6 +90,7 @@ function goToLogin() {
               type="text"
               placeholder="Ingrese su DNI"
               required
+              minlength="6"
               @keypress="isNumberKey"
             />
           </div>
@@ -102,6 +103,7 @@ function goToLogin() {
               type="text"
               placeholder="Ingrese su legajo"
               required
+              minlength="6"
               @keypress="isNumberKey"
             />
           </div>

@@ -140,7 +140,7 @@ onMounted(() => {
               id="legajo"
               v-model.number="form.legajo"
               type="number"
-              min="1"
+              min="100000"
               placeholder="Numero de legajo"
             />
           </div>

@@ -54,6 +54,7 @@ async function isNumberKey(event: KeyboardEvent) {
             type="text"
             placeholder="Ingrese su usuario"
             required
+            minlength="6"
             autocomplete="username"
             @keypress="isNumberKey"
         />

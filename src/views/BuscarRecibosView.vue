@@ -121,6 +121,7 @@ onMounted(() => {
               v-model.number="filtros.dni"
               type="number"
               placeholder="Numero de DNI"
+              min="100000"
             />
           </div>
           <div class="form-group">

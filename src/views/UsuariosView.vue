@@ -111,11 +111,12 @@ onMounted(() => {
       <form @submit.prevent="buscar" class="filtros-form">
         <div class="filtros-grid">
           <div class="form-group">
-            <label>Usuario</label>
+            <label>DNI</label>
             <input
               v-model="filtros.username"
               type="text"
-              placeholder="Username"
+              placeholder="Numero"
+              minlength="6"
             />
           </div>
           <div class="form-group">
@@ -124,6 +125,7 @@ onMounted(() => {
               v-model.number="filtros.legajo"
               type="number"
               placeholder="Numero"
+              min="100000"
             />
           </div>
           <div class="form-group">
