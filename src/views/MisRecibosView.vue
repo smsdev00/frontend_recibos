@@ -95,9 +95,7 @@ function limpiarFiltros() {
   fetchRecibos()
 }
 
-function formatDate(dateStr: string) {
-  return new Date(dateStr).toLocaleDateString('es-AR')
-}
+
 
 function getMesNombre(mes: number) {
   const meses = [
@@ -201,14 +199,8 @@ onMounted(() => {
             </span>
           </div>
           <div class="recibo-body">
-            <div class="recibo-info">
-              <span class="label">Legajo:</span>
-              <span class="value">{{ recibo.legajo }}</span>
-            </div>
-            <div class="recibo-info">
-              <span class="label">Fecha:</span>
-              <span class="value">{{ formatDate(recibo.created) }}</span>
-            </div>
+
+
           </div>
           <div class="recibo-footer">
 
