@@ -102,6 +102,27 @@ async function handleSubmit() {
     return
   }
 
+  // Validar que mes/año de archivos coincidan con los declarados
+  const infoPersonal = extraerMesAnioArchivo(archivoPersonal.name)
+  if (!infoPersonal) {
+    error.value = `No se pudo extraer mes/año del archivo "${archivoPersonal.name}". Formato esperado: PERSmmaa.TXT`
+    return
+  }
+  if (infoPersonal.mes !== form.value.mes || infoPersonal.anio !== form.value.anio) {
+    error.value = `El archivo ${archivoPersonal.name} corresponde a ${String(infoPersonal.mes).padStart(2, '0')}/${infoPersonal.anio} pero se declaró ${String(form.value.mes).padStart(2, '0')}/${form.value.anio}`
+    return
+  }
+
+  const infoRecibos = extraerMesAnioArchivo(archivoRecibos.name)
+  if (!infoRecibos) {
+    error.value = `No se pudo extraer mes/año del archivo "${archivoRecibos.name}". Formato esperado: RECImmaa.TXT`
+    return
+  }
+  if (infoRecibos.mes !== form.value.mes || infoRecibos.anio !== form.value.anio) {
+    error.value = `El archivo ${archivoRecibos.name} corresponde a ${String(infoRecibos.mes).padStart(2, '0')}/${infoRecibos.anio} pero se declaró ${String(form.value.mes).padStart(2, '0')}/${form.value.anio}`
+    return
+  }
+
   loading.value = true
   error.value = null
   success.value = null
@@ -218,6 +239,19 @@ function formatFechaActivacion(dateStr: string): string {
 
 function formatNumber(num: number): string {
   return num.toLocaleString('es-AR')
+}
+
+function extraerMesAnioArchivo(filename: string): { mes: number; anio: number } | null {
+  // Busca 4 dígitos consecutivos (mmaa) en el nombre
+  const match = filename.match(/(\d{2})(\d{2})/)
+  if (!match || !match[1] || !match[2]) return null
+
+  const mes = parseInt(match[1], 10)
+  const anioCorto = parseInt(match[2], 10)
+  const anio = 2000 + anioCorto
+
+  if (mes < 1 || mes > 12) return null
+  return { mes, anio }
 }
 
 onMounted(() => {
