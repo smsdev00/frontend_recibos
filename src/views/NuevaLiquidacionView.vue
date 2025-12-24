@@ -90,7 +90,7 @@ function handleFileRecibos(event: Event) {
     error.value = null
     const info = extraerMesAnioArchivo(file.name)
     if (!info) {
-      error.value = `No se pudo extraer mes/año del archivo "${file.name}". Formato esperado: RECImmaa.TXT`
+      error.value = `No se pudo extraer mes/año del archivo "${file.name}". Formato esperado: RECmmaa.TXT`
       target.value = ''
       return
     }
@@ -327,7 +327,7 @@ onUnmounted(() => {
                 {{ form.archivo_recibos.name }}
               </span>
             </div>
-            <small>Formato esperado: RECImmaa.TXT</small>
+            <small>Formato esperado: RECmmaa.TXT</small>
           </div>
 
           <!-- Período detectado -->
