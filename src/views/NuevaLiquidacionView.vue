@@ -19,6 +19,8 @@ const progressItemType = ref<'personal' | 'recibos' | null>(null)
 const progressCurrent = ref(0)
 const progressTotal = ref(0)
 const progressPercentage = ref(0)
+const personalCompleted = ref(false)
+const recibosCompleted = ref(false)
 let websocket: WebSocket | null = null
 
 const progressLabel = computed(() => {
@@ -109,6 +111,8 @@ async function handleSubmit() {
   progressCurrent.value = 0
   progressTotal.value = 0
   progressPercentage.value = 0
+  personalCompleted.value = false
+  recibosCompleted.value = false
 
   try {
     const formData = new FormData()
@@ -152,12 +156,22 @@ function connectWebSocket(liquidacionId: number) {
 
       if (data.type === 'status') {
         progressStatus.value = data.message
+        // Detectar cuando se completa personal y empieza recibos
+        if (data.message?.toLowerCase().includes('recibos') && progressItemType.value === 'personal') {
+          personalCompleted.value = true
+        }
       } else if (data.type === 'progress') {
+        // Si cambiamos de personal a recibos, marcar personal como completado
+        if (progressItemType.value === 'personal' && data.item_type === 'recibos') {
+          personalCompleted.value = true
+        }
         progressItemType.value = data.item_type
         progressCurrent.value = data.current
         progressTotal.value = data.total
         progressPercentage.value = data.percentage
       } else if (data.type === 'complete') {
+        personalCompleted.value = true
+        recibosCompleted.value = true
         progressStatus.value = 'Completado'
         progressPercentage.value = 100
         loading.value = false
@@ -310,22 +324,61 @@ onUnmounted(() => {
           </div>
         </div>
 
-        <!-- Barra de progreso -->
-        <div v-if="showProgress" class="progress-section">
-          <div class="progress-header">
-            <span class="progress-status">{{ progressStatus }}</span>
-            <span v-if="progressItemType" class="progress-detail">
-              {{ progressLabel }}: {{ formatNumber(progressCurrent) }} / {{ formatNumber(progressTotal) }}
-            </span>
+        <!-- Overlay de progreso llamativo -->
+        <Teleport to="body">
+          <div v-if="showProgress" class="progress-overlay">
+            <div class="progress-modal">
+              <div class="progress-title">Procesando Liquidacion</div>
+
+              <!-- Fases de progreso -->
+              <div class="progress-phases">
+                <div class="phase" :class="{
+                  'active': progressItemType === 'personal' && !personalCompleted,
+                  'completed': personalCompleted
+                }">
+                  <div class="phase-icon">
+                    <span v-if="personalCompleted" class="checkmark">&#10003;</span>
+                    <span v-else-if="progressItemType === 'personal'" class="spinner"></span>
+                    <span v-else class="pending">1</span>
+                  </div>
+                  <div class="phase-label">Personal</div>
+                </div>
+                <div class="phase-connector" :class="{ 'completed': personalCompleted }"></div>
+                <div class="phase" :class="{
+                  'active': progressItemType === 'recibos' && !recibosCompleted,
+                  'completed': recibosCompleted
+                }">
+                  <div class="phase-icon">
+                    <span v-if="recibosCompleted" class="checkmark">&#10003;</span>
+                    <span v-else-if="progressItemType === 'recibos'" class="spinner"></span>
+                    <span v-else class="pending">2</span>
+                  </div>
+                  <div class="phase-label">Recibos</div>
+                </div>
+              </div>
+
+              <!-- Porcentaje grande -->
+              <div class="progress-percentage-big">
+                {{ Math.round(progressPercentage) }}<span class="percent-symbol">%</span>
+              </div>
+
+              <!-- Barra de progreso grande -->
+              <div class="progress-bar-container-big">
+                <div class="progress-bar-big" :style="{ width: progressPercentage + '%' }">
+                  <div class="progress-bar-glow"></div>
+                </div>
+              </div>
+
+              <!-- Detalles -->
+              <div class="progress-details">
+                <div class="progress-status-text">{{ progressStatus }}</div>
+                <div v-if="progressItemType" class="progress-counts">
+                  {{ progressLabel }}: {{ formatNumber(progressCurrent) }} / {{ formatNumber(progressTotal) }}
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="progress-bar-container">
-            <div
-              class="progress-bar"
-              :style="{ width: progressPercentage + '%' }"
-            ></div>
-          </div>
-          <div class="progress-percentage">{{ progressPercentage.toFixed(1) }}%</div>
-        </div>
+        </Teleport>
 
         <div v-if="error" class="message error">
           {{ error }}
@@ -538,51 +591,232 @@ onUnmounted(() => {
   background: #e5e7eb;
 }
 
-/* Barra de progreso */
-.progress-section {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  padding: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.progress-header {
+/* Overlay de progreso llamativo */
+.progress-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.75);
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.75rem;
+  justify-content: center;
+  z-index: 9999;
+  backdrop-filter: blur(4px);
 }
 
-.progress-status {
+.progress-modal {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  border-radius: 24px;
+  padding: 3rem;
+  min-width: 500px;
+  max-width: 90vw;
+  box-shadow: 0 25px 80px rgba(0, 174, 195, 0.3);
+  border: 1px solid rgba(0, 174, 195, 0.2);
+  animation: modalAppear 0.3s ease-out;
+}
+
+@keyframes modalAppear {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.progress-title {
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 2rem;
+}
+
+/* Fases de progreso */
+.progress-phases {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  margin-bottom: 2rem;
+}
+
+.phase {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.phase-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: #2d3748;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #718096;
+  transition: all 0.3s ease;
+  border: 3px solid #4a5568;
+}
+
+.phase.active .phase-icon {
+  background: rgba(0, 174, 195, 0.2);
+  border-color: #00AEC3;
+  color: #00AEC3;
+  box-shadow: 0 0 20px rgba(0, 174, 195, 0.4);
+}
+
+.phase.completed .phase-icon {
+  background: #10b981;
+  border-color: #10b981;
+  color: #fff;
+}
+
+.phase-label {
+  font-size: 0.9rem;
+  color: #718096;
   font-weight: 500;
-  color: #1a1a2e;
+  transition: color 0.3s ease;
 }
 
-.progress-detail {
-  font-size: 0.85rem;
-  color: #64748b;
+.phase.active .phase-label,
+.phase.completed .phase-label {
+  color: #fff;
 }
 
-.progress-bar-container {
-  background: #e2e8f0;
-  border-radius: 4px;
-  height: 12px;
+.phase-connector {
+  width: 60px;
+  height: 4px;
+  background: #4a5568;
+  margin: 0 0.5rem;
+  margin-bottom: 1.5rem;
+  border-radius: 2px;
+  transition: background 0.3s ease;
+}
+
+.phase-connector.completed {
+  background: #10b981;
+}
+
+.checkmark {
+  font-size: 1.5rem;
+}
+
+.pending {
+  font-size: 1.1rem;
+}
+
+.spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid rgba(0, 174, 195, 0.3);
+  border-top-color: #00AEC3;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Porcentaje grande */
+.progress-percentage-big {
+  text-align: center;
+  font-size: 5rem;
+  font-weight: 700;
+  color: #00AEC3;
+  line-height: 1;
+  margin-bottom: 1.5rem;
+  text-shadow: 0 0 40px rgba(0, 174, 195, 0.5);
+}
+
+.percent-symbol {
+  font-size: 2.5rem;
+  opacity: 0.7;
+}
+
+/* Barra de progreso grande */
+.progress-bar-container-big {
+  background: #2d3748;
+  border-radius: 25px;
+  height: 40px;
   overflow: hidden;
+  margin-bottom: 1.5rem;
+  box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.progress-bar-big {
+  height: 100%;
+  background: linear-gradient(90deg, #00AEC3 0%, #00d4aa 50%, #00AEC3 100%);
+  background-size: 200% 100%;
+  border-radius: 25px;
+  transition: width 0.3s ease;
+  position: relative;
+  animation: gradientMove 2s ease infinite;
+}
+
+@keyframes gradientMove {
+  0%, 100% { background-position: 0% 0%; }
+  50% { background-position: 100% 0%; }
+}
+
+.progress-bar-glow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.3) 0%, transparent 100%);
+  border-radius: 25px 25px 0 0;
+}
+
+/* Detalles del progreso */
+.progress-details {
+  text-align: center;
+}
+
+.progress-status-text {
+  font-size: 1.1rem;
+  color: #a0aec0;
   margin-bottom: 0.5rem;
 }
 
-.progress-bar {
-  background: linear-gradient(90deg, #00AEC3, #009AAD);
-  height: 100%;
-  border-radius: 4px;
-  transition: width 0.3s ease;
+.progress-counts {
+  font-size: 1rem;
+  color: #00AEC3;
+  font-weight: 500;
 }
 
-.progress-percentage {
-  text-align: right;
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: #00AEC3;
+@media (max-width: 600px) {
+  .progress-modal {
+    min-width: auto;
+    padding: 2rem;
+    margin: 1rem;
+  }
+
+  .progress-percentage-big {
+    font-size: 3.5rem;
+  }
+
+  .percent-symbol {
+    font-size: 1.8rem;
+  }
+
+  .phase-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .phase-connector {
+    width: 40px;
+  }
 }
 </style>
