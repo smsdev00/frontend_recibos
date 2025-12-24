@@ -30,43 +30,56 @@ const progressLabel = computed(() => {
 })
 
 const form = ref<{
-  mes: number
-  anio: number
   tipo: number
   fecha_activacion: string
   archivo_personal: File | null
   archivo_recibos: File | null
 }>({
-  mes: new Date().getMonth() + 1,
-  anio: new Date().getFullYear(),
   tipo: 1,
   fecha_activacion: new Date().toISOString().split('T')[0] ?? '',
   archivo_personal: null,
   archivo_recibos: null
 })
 
-const meses = [
-  { value: 1, label: 'Enero' },
-  { value: 2, label: 'Febrero' },
-  { value: 3, label: 'Marzo' },
-  { value: 4, label: 'Abril' },
-  { value: 5, label: 'Mayo' },
-  { value: 6, label: 'Junio' },
-  { value: 7, label: 'Julio' },
-  { value: 8, label: 'Agosto' },
-  { value: 9, label: 'Septiembre' },
-  { value: 10, label: 'Octubre' },
-  { value: 11, label: 'Noviembre' },
-  { value: 12, label: 'Diciembre' }
-]
+// Mes y año detectados de los archivos
+const mesDetectado = ref<number | null>(null)
+const anioDetectado = ref<number | null>(null)
 
-const anios = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i + 1)
+const meses: Record<number, string> = {
+  1: 'Enero', 2: 'Febrero', 3: 'Marzo', 4: 'Abril',
+  5: 'Mayo', 6: 'Junio', 7: 'Julio', 8: 'Agosto',
+  9: 'Septiembre', 10: 'Octubre', 11: 'Noviembre', 12: 'Diciembre'
+}
+
+const periodoDetectado = computed(() => {
+  if (mesDetectado.value && anioDetectado.value) {
+    return `${meses[mesDetectado.value]} ${anioDetectado.value}`
+  }
+  return null
+})
 
 function handleFilePersonal(event: Event) {
   const target = event.target as HTMLInputElement
   const file = target.files?.[0]
   if (file) {
+    error.value = null
+    const info = extraerMesAnioArchivo(file.name)
+    if (!info) {
+      error.value = `No se pudo extraer mes/año del archivo "${file.name}". Formato esperado: PERSmmaa.TXT`
+      target.value = ''
+      return
+    }
     form.value.archivo_personal = file
+    mesDetectado.value = info.mes
+    anioDetectado.value = info.anio
+
+    // Si ya hay archivo de recibos, validar que coincida
+    if (form.value.archivo_recibos) {
+      const infoRecibos = extraerMesAnioArchivo(form.value.archivo_recibos.name)
+      if (infoRecibos && (infoRecibos.mes !== info.mes || infoRecibos.anio !== info.anio)) {
+        error.value = `Los archivos no coinciden: Personal es ${String(info.mes).padStart(2, '0')}/${info.anio}, Recibos es ${String(infoRecibos.mes).padStart(2, '0')}/${infoRecibos.anio}`
+      }
+    }
   }
 }
 
@@ -74,6 +87,27 @@ function handleFileRecibos(event: Event) {
   const target = event.target as HTMLInputElement
   const file = target.files?.[0]
   if (file) {
+    error.value = null
+    const info = extraerMesAnioArchivo(file.name)
+    if (!info) {
+      error.value = `No se pudo extraer mes/año del archivo "${file.name}". Formato esperado: RECImmaa.TXT`
+      target.value = ''
+      return
+    }
+
+    // Si ya hay archivo de personal, validar que coincida
+    if (mesDetectado.value && anioDetectado.value) {
+      if (info.mes !== mesDetectado.value || info.anio !== anioDetectado.value) {
+        error.value = `Los archivos no coinciden: Personal es ${String(mesDetectado.value).padStart(2, '0')}/${anioDetectado.value}, Recibos es ${String(info.mes).padStart(2, '0')}/${info.anio}`
+        target.value = ''
+        return
+      }
+    } else {
+      // Si no hay archivo de personal, establecer mes/año desde recibos
+      mesDetectado.value = info.mes
+      anioDetectado.value = info.anio
+    }
+
     form.value.archivo_recibos = file
   }
 }
@@ -102,24 +136,8 @@ async function handleSubmit() {
     return
   }
 
-  // Validar que mes/año de archivos coincidan con los declarados
-  const infoPersonal = extraerMesAnioArchivo(archivoPersonal.name)
-  if (!infoPersonal) {
-    error.value = `No se pudo extraer mes/año del archivo "${archivoPersonal.name}". Formato esperado: PERSmmaa.TXT`
-    return
-  }
-  if (infoPersonal.mes !== form.value.mes || infoPersonal.anio !== form.value.anio) {
-    error.value = `El archivo ${archivoPersonal.name} corresponde a ${String(infoPersonal.mes).padStart(2, '0')}/${infoPersonal.anio} pero se declaró ${String(form.value.mes).padStart(2, '0')}/${form.value.anio}`
-    return
-  }
-
-  const infoRecibos = extraerMesAnioArchivo(archivoRecibos.name)
-  if (!infoRecibos) {
-    error.value = `No se pudo extraer mes/año del archivo "${archivoRecibos.name}". Formato esperado: RECImmaa.TXT`
-    return
-  }
-  if (infoRecibos.mes !== form.value.mes || infoRecibos.anio !== form.value.anio) {
-    error.value = `El archivo ${archivoRecibos.name} corresponde a ${String(infoRecibos.mes).padStart(2, '0')}/${infoRecibos.anio} pero se declaró ${String(form.value.mes).padStart(2, '0')}/${form.value.anio}`
+  if (!mesDetectado.value || !anioDetectado.value) {
+    error.value = 'No se pudo detectar el período de los archivos'
     return
   }
 
@@ -139,8 +157,8 @@ async function handleSubmit() {
     const formData = new FormData()
     formData.append('archivo_personal', archivoPersonal)
     formData.append('archivo_recibos', archivoRecibos)
-    formData.append('mes', String(form.value.mes))
-    formData.append('anio', String(form.value.anio))
+    formData.append('mes', String(mesDetectado.value))
+    formData.append('anio', String(anioDetectado.value))
     formData.append('tipo', String(form.value.tipo))
     formData.append('fecha_activacion', form.value.fecha_activacion)
 
@@ -274,27 +292,55 @@ onUnmounted(() => {
 
     <div class="form-card">
       <form @submit.prevent="handleSubmit">
+        <!-- Archivos primero -->
+        <div class="form-section">
+          <h3>Archivos de Datos</h3>
+
+          <div class="file-group">
+            <label for="archivo_personal">Archivo de Personal *</label>
+            <div class="file-input">
+              <input
+                id="archivo_personal"
+                type="file"
+                accept=".txt,.csv"
+                @change="handleFilePersonal"
+                required
+              />
+              <span v-if="form.archivo_personal" class="file-name">
+                {{ form.archivo_personal.name }}
+              </span>
+            </div>
+            <small>Formato esperado: PERSmmaa.TXT</small>
+          </div>
+
+          <div class="file-group">
+            <label for="archivo_recibos">Archivo de Recibos *</label>
+            <div class="file-input">
+              <input
+                id="archivo_recibos"
+                type="file"
+                accept=".txt,.csv"
+                @change="handleFileRecibos"
+                required
+              />
+              <span v-if="form.archivo_recibos" class="file-name">
+                {{ form.archivo_recibos.name }}
+              </span>
+            </div>
+            <small>Formato esperado: RECImmaa.TXT</small>
+          </div>
+
+          <!-- Período detectado -->
+          <div v-if="periodoDetectado" class="periodo-detectado">
+            <span class="periodo-label">Período detectado:</span>
+            <span class="periodo-value">{{ periodoDetectado }}</span>
+          </div>
+        </div>
+
+        <!-- Tipo y fecha de activación -->
         <div class="form-grid">
           <div class="form-group">
-            <label for="mes">Mes *</label>
-            <select id="mes" v-model.number="form.mes" required>
-              <option v-for="mes in meses" :key="mes.value" :value="mes.value">
-                {{ mes.label }}
-              </option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="anio">Año *</label>
-            <select id="anio" v-model.number="form.anio" required>
-              <option v-for="anio in anios" :key="anio" :value="anio">
-                {{ anio }}
-              </option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="tipo">Tipo *</label>
+            <label for="tipo">Tipo de Liquidacion *</label>
             <select id="tipo" v-model.number="form.tipo" required>
               <option
                 v-for="tipo in constantsStore.tiposLiquidacion"
@@ -317,44 +363,6 @@ onUnmounted(() => {
             <small v-if="form.fecha_activacion" class="fecha-preview">
               {{ formatFechaActivacion(form.fecha_activacion) }}
             </small>
-          </div>
-        </div>
-
-        <div class="form-section">
-          <h3>Archivos de Datos</h3>
-
-          <div class="file-group">
-            <label for="archivo_personal">Archivo de Personal *</label>
-            <div class="file-input">
-              <input
-                id="archivo_personal"
-                type="file"
-                accept=".txt,.csv"
-                @change="handleFilePersonal"
-                required
-              />
-              <span v-if="form.archivo_personal" class="file-name">
-                {{ form.archivo_personal.name }}
-              </span>
-            </div>
-            <small>Archivo TXT con datos de personal</small>
-          </div>
-
-          <div class="file-group">
-            <label for="archivo_recibos">Archivo de Recibos *</label>
-            <div class="file-input">
-              <input
-                id="archivo_recibos"
-                type="file"
-                accept=".txt,.csv"
-                @change="handleFileRecibos"
-                required
-              />
-              <span v-if="form.archivo_recibos" class="file-name">
-                {{ form.archivo_recibos.name }}
-              </span>
-            </div>
-            <small>Archivo TXT con datos de recibos</small>
           </div>
         </div>
 
@@ -520,9 +528,12 @@ onUnmounted(() => {
 }
 
 .form-section {
+  margin-bottom: 1.5rem;
+}
+
+.form-section + .form-grid {
   border-top: 1px solid #eee;
   padding-top: 1.5rem;
-  margin-bottom: 1.5rem;
 }
 
 .form-section h3 {
@@ -567,6 +578,30 @@ onUnmounted(() => {
 .file-group small {
   color: #666;
   font-size: 0.8rem;
+}
+
+/* Período detectado */
+.periodo-detectado {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
+  border: 2px solid #00AEC3;
+  border-radius: 12px;
+  padding: 1rem 1.5rem;
+  margin-top: 1rem;
+}
+
+.periodo-label {
+  font-size: 0.95rem;
+  color: #00838f;
+  font-weight: 500;
+}
+
+.periodo-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #006064;
 }
 
 .message {
