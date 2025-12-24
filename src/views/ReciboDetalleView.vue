@@ -59,15 +59,6 @@ function formatMonto(monto: number) {
   }).format(Math.abs(monto))
 }
 
-function formatDate(dateStr: string | undefined) {
-  if (!dateStr) return '-'
-  const date = new Date(dateStr)
-  const day = String(date.getDate()).padStart(2, '0')
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const year = date.getFullYear()
-  return `${day}/${month}/${year}`
-}
-
 function getMesNombre(mes: number) {
   const meses = [
     'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
@@ -150,14 +141,6 @@ onMounted(() => {
           <div class="meta-item">
             <span class="label">Legajo:</span>
             <span class="value">{{ recibo.legajo }}</span>
-          </div>
-          <div class="meta-item">
-            <span class="label">Fecha Emision:</span>
-            <span class="value">{{ formatDate(recibo.created) }}</span>
-          </div>
-          <div v-if="recibo.fecha_activacion" class="meta-item">
-            <span class="label">Fecha Activacion:</span>
-            <span class="value">{{ formatDate(recibo.fecha_activacion) }}</span>
           </div>
         </div>
       </div>
