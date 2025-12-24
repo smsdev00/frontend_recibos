@@ -126,20 +126,20 @@ onMounted(() => {
             />
           </div>
           <div class="form-group">
-            <label>Mes</label>
-            <select v-model.number="filtros.mes">
-              <option :value="undefined">Todos</option>
-              <option v-for="mes in meses" :key="mes.value" :value="mes.value">
-                {{ mes.label }}
-              </option>
-            </select>
-          </div>
-          <div class="form-group">
             <label>Año</label>
             <select v-model.number="filtros.anio">
               <option :value="undefined">Todos</option>
               <option v-for="anio in anios" :key="anio" :value="anio">
                 {{ anio }}
+              </option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Mes</label>
+            <select v-model.number="filtros.mes">
+              <option :value="undefined">Todos</option>
+              <option v-for="mes in meses" :key="mes.value" :value="mes.value">
+                {{ mes.label }}
               </option>
             </select>
           </div>
@@ -154,14 +154,6 @@ onMounted(() => {
               >
                 {{ (tipo as TipoLiquidacionInfo).nombre }}
               </option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Estado</label>
-            <select v-model.number="filtros.activa">
-              <option :value="undefined">Todos</option>
-              <option :value="1">Activo</option>
-              <option :value="0">Inactivo</option>
             </select>
           </div>
         </div>
