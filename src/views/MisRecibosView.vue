@@ -212,7 +212,7 @@ onMounted(() => {
       <div v-if="pagination.pages > 1" class="pagination">
         <button
           @click="goToPage(pagination.page - 1)"
-          :disabled="pagination.page <= 1"
+          :disabled="pagination.page <= 1 || loading"
           class="btn-page"
         >
           Anterior
@@ -222,7 +222,7 @@ onMounted(() => {
         </span>
         <button
           @click="goToPage(pagination.page + 1)"
-          :disabled="pagination.page >= pagination.pages"
+          :disabled="pagination.page >= pagination.pages || loading"
           class="btn-page"
         >
           Siguiente
