@@ -373,8 +373,8 @@ onMounted(() => {
 
 .btn-ver {
   background: transparent;
-  border: 1px solid #00AEC3;
-  color: #00AEC3;
+  border: 1px solid var(--pba-celeste);
+  color: var(--pba-celeste);
   padding: 0.375rem 0.75rem;
   border-radius: 6px;
   font-size: 0.85rem;
@@ -383,7 +383,7 @@ onMounted(() => {
 }
 
 .btn-ver:hover {
-  background: #00AEC3;
+  background: var(--pba-celeste);
   color: #fff;
 }
 
@@ -405,8 +405,8 @@ onMounted(() => {
 }
 
 .btn-page:hover:not(:disabled) {
-  border-color: #00AEC3;
-  color: #00AEC3;
+  border-color: var(--pba-celeste);
+  color: var(--pba-celeste);
 }
 
 .btn-page:disabled {
@@ -428,12 +428,12 @@ onMounted(() => {
 }
 
 .btn-primary {
-  background: #00AEC3;
+  background: var(--pba-celeste);
   color: #fff;
 }
 
 .btn-primary:hover {
-  background: #3d7a8c;
+  background: var(--pba-celeste-dark);
 }
 
 .btn-secondary {
@@ -488,13 +488,13 @@ onMounted(() => {
 }
 
 .filtro-select:hover {
-  border-color: #00AEC3;
+  border-color: var(--pba-celeste);
 }
 
 .filtro-select:focus {
   outline: none;
-  border-color: #00AEC3;
-  box-shadow: 0 0 0 2px rgba(74, 144, 164, 0.2);
+  border-color: var(--pba-celeste);
+  box-shadow: 0 0 0 2px rgba(0, 152, 217, 0.15);
 }
 
 .filtro-actions {

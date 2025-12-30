@@ -60,11 +60,11 @@ function goHome() {
 }
 
 .btn-primary {
-  background: #00AEC3;
+  background: var(--pba-celeste);
   color: #fff;
 }
 
 .btn-primary:hover {
-  background: #009AAD;
+  background: var(--pba-celeste-dark);
 }
 </style>

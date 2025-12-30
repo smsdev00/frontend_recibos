@@ -312,7 +312,7 @@ onMounted(() => {
 .form-group input:focus,
 .form-group select:focus {
   outline: none;
-  border-color: #00AEC3;
+  border-color: var(--pba-celeste);
 }
 
 .filtros-actions {
@@ -330,7 +330,7 @@ onMounted(() => {
 }
 
 .btn-primary {
-  background: #00AEC3;
+  background: var(--pba-celeste);
   color: #fff;
 }
 
@@ -383,14 +383,14 @@ onMounted(() => {
 }
 
 .usuarios-table th {
-  color: #00AEC3;
+  color: var(--pba-celeste);
   font-weight: 500;
   font-size: 0.85rem;
 }
 
 .username {
   font-weight: 500;
-  color: #00AEC3;
+  color: var(--pba-celeste);
 }
 
 .role-badge {
@@ -412,8 +412,8 @@ onMounted(() => {
 
 .btn-action {
   background: transparent;
-  border: 1px solid #00AEC3;
-  color: #00AEC3;
+  border: 1px solid var(--pba-celeste);
+  color: var(--pba-celeste);
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
   font-size: 0.8rem;
@@ -421,7 +421,7 @@ onMounted(() => {
 }
 
 .btn-action:hover {
-  background: #00AEC3;
+  background: var(--pba-celeste);
   color: #fff;
 }
 
@@ -444,8 +444,8 @@ onMounted(() => {
 }
 
 .btn-page:hover:not(:disabled) {
-  border-color: #00AEC3;
-  color: #00AEC3;
+  border-color: var(--pba-celeste);
+  color: var(--pba-celeste);
 }
 
 .btn-page:disabled {

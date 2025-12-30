@@ -248,8 +248,8 @@ onMounted(() => {
 }
 
 .nav-link.active {
-  color: #00AEC3;
-  background: #E5F9FB;
+  color: var(--pba-celeste);
+  background: var(--bg-accent);
 }
 
 .header-right {
@@ -273,8 +273,8 @@ onMounted(() => {
 .user-avatar {
   width: 36px;
   height: 36px;
-  background: linear-gradient(135deg, #00AEC3 0%, #009AAD 100%);
-  color: #fff;
+  background: var(--pba-gradient);
+  color: var(--text-inverse);
   border-radius: 50%;
   display: flex;
   align-items: center;

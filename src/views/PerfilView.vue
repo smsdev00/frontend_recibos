@@ -207,8 +207,8 @@ function cancelPasswordChange() {
 .avatar {
   width: 80px;
   height: 80px;
-  background: linear-gradient(135deg, #00AEC3 0%, #009AAD 100%);
-  color: #fff;
+  background: var(--pba-gradient);
+  color: var(--text-inverse);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -350,8 +350,8 @@ function cancelPasswordChange() {
 
 .form-group input:focus {
   outline: none;
-  border-color: #00AEC3;
-  box-shadow: 0 0 0 3px rgba(74, 144, 164, 0.1);
+  border-color: var(--pba-celeste);
+  box-shadow: 0 0 0 3px rgba(0, 152, 217, 0.15);
 }
 
 .message {
@@ -389,12 +389,12 @@ function cancelPasswordChange() {
 }
 
 .btn-primary {
-  background: #00AEC3;
+  background: var(--pba-celeste);
   color: #fff;
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: #009AAD;
+  background: var(--pba-celeste-dark);
 }
 
 .btn-primary:disabled {

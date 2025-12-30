@@ -294,7 +294,7 @@ onMounted(() => {
 .form-group input:focus,
 .form-group select:focus {
   outline: none;
-  border-color: #00AEC3;
+  border-color: var(--pba-celeste);
 }
 
 .filtros-actions {
@@ -312,7 +312,7 @@ onMounted(() => {
 }
 
 .btn-primary {
-  background: #00AEC3;
+  background: var(--pba-celeste);
   color: #fff;
 }
 
@@ -373,7 +373,7 @@ onMounted(() => {
 }
 
 .recibos-table th {
-  color: #00AEC3;
+  color: var(--pba-celeste);
   font-weight: 500;
   font-size: 0.85rem;
 }
@@ -407,8 +407,8 @@ onMounted(() => {
 
 .btn-ver {
   background: transparent;
-  border: 1px solid #00AEC3;
-  color: #00AEC3;
+  border: 1px solid var(--pba-celeste);
+  color: var(--pba-celeste);
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
   font-size: 0.8rem;
@@ -416,7 +416,7 @@ onMounted(() => {
 }
 
 .btn-ver:hover {
-  background: #00AEC3;
+  background: var(--pba-celeste);
   color: #fff;
 }
 
@@ -439,8 +439,8 @@ onMounted(() => {
 }
 
 .btn-page:hover:not(:disabled) {
-  border-color: #00AEC3;
-  color: #00AEC3;
+  border-color: var(--pba-celeste);
+  color: var(--pba-celeste);
 }
 
 .btn-page:disabled {

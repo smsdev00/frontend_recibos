@@ -562,7 +562,7 @@ onUnmounted(() => {
 .btn-back {
   background: transparent;
   border: none;
-  color: #00AEC3;
+  color: var(--pba-celeste);
   font-size: 1rem;
   cursor: pointer;
   padding: 0.5rem;
@@ -621,12 +621,12 @@ onUnmounted(() => {
 .form-group input:focus,
 .form-group select:focus {
   outline: none;
-  border-color: #00AEC3;
-  box-shadow: 0 0 0 3px rgba(74, 144, 164, 0.1);
+  border-color: var(--pba-celeste);
+  box-shadow: 0 0 0 3px rgba(0, 152, 217, 0.15);
 }
 
 .fecha-preview {
-  color: #00AEC3;
+  color: var(--pba-celeste);
   font-weight: 500;
 }
 
@@ -670,7 +670,7 @@ onUnmounted(() => {
 }
 
 .file-input input[type="file"]:hover {
-  border-color: #00AEC3;
+  border-color: var(--pba-celeste);
 }
 
 .file-name {
@@ -689,7 +689,7 @@ onUnmounted(() => {
   align-items: center;
   gap: 0.75rem;
   background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
-  border: 2px solid #00AEC3;
+  border: 2px solid var(--pba-celeste);
   border-radius: 12px;
   padding: 1rem 1.5rem;
   margin-top: 1rem;
@@ -741,12 +741,12 @@ onUnmounted(() => {
 }
 
 .btn-primary {
-  background: #00AEC3;
+  background: var(--pba-celeste);
   color: #fff;
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: #009AAD;
+  background: var(--pba-celeste-dark);
 }
 
 .btn-primary:disabled {
@@ -841,8 +841,8 @@ onUnmounted(() => {
 
 .phase.active .phase-icon {
   background: rgba(0, 174, 195, 0.2);
-  border-color: #00AEC3;
-  color: #00AEC3;
+  border-color: var(--pba-celeste);
+  color: var(--pba-celeste);
   box-shadow: 0 0 20px rgba(0, 174, 195, 0.4);
 }
 
@@ -890,7 +890,7 @@ onUnmounted(() => {
   width: 24px;
   height: 24px;
   border: 3px solid rgba(0, 174, 195, 0.3);
-  border-top-color: #00AEC3;
+  border-top-color: var(--pba-celeste);
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -904,7 +904,7 @@ onUnmounted(() => {
   text-align: center;
   font-size: 5rem;
   font-weight: 700;
-  color: #00AEC3;
+  color: var(--pba-celeste);
   line-height: 1;
   margin-bottom: 1.5rem;
   text-shadow: 0 0 40px rgba(0, 174, 195, 0.5);
@@ -927,7 +927,7 @@ onUnmounted(() => {
 
 .progress-bar-big {
   height: 100%;
-  background: linear-gradient(90deg, #00AEC3 0%, #00d4aa 50%, #00AEC3 100%);
+  background: linear-gradient(90deg, var(--pba-celeste) 0%, #00d4aa 50%, var(--pba-celeste) 100%);
   background-size: 200% 100%;
   border-radius: 25px;
   transition: width 0.3s ease;
@@ -963,7 +963,7 @@ onUnmounted(() => {
 
 .progress-counts {
   font-size: 1rem;
-  color: #00AEC3;
+  color: var(--pba-celeste);
   font-weight: 500;
 }
 

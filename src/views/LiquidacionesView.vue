@@ -395,7 +395,7 @@ onMounted(() => {
 }
 
 .btn-primary {
-  background: #00AEC3;
+  background: var(--pba-celeste);
   color: #fff;
 }
 
@@ -434,7 +434,7 @@ onMounted(() => {
 }
 
 .liquidaciones-table th {
-  color: #00AEC3;
+  color: var(--pba-celeste);
   font-weight: 500;
   font-size: 0.85rem;
 }
@@ -552,8 +552,8 @@ onMounted(() => {
 }
 
 .btn-page:hover:not(:disabled) {
-  border-color: #00AEC3;
-  color: #00AEC3;
+  border-color: var(--pba-celeste);
+  color: var(--pba-celeste);
 }
 
 .btn-page:disabled {

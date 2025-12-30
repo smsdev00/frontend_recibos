@@ -182,7 +182,7 @@ function goToLogin() {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-dark-secondary) 100%);
   padding: 1rem;
 }
 
@@ -252,8 +252,8 @@ function goToLogin() {
 
 .form-group input:focus {
   outline: none;
-  border-color: #00AEC3;
-  box-shadow: 0 0 0 3px rgba(74, 144, 164, 0.1);
+  border-color: var(--pba-celeste);
+  box-shadow: 0 0 0 3px rgba(0, 152, 217, 0.15);
 }
 
 .password-input {
@@ -273,7 +273,7 @@ function goToLogin() {
   transform: translateY(-50%);
   background: none;
   border: none;
-  color: #00AEC3;
+  color: var(--pba-celeste);
   cursor: pointer;
   font-size: 0.85rem;
   padding: 0.25rem;
@@ -303,20 +303,20 @@ function goToLogin() {
 }
 
 .btn-register {
-  background: linear-gradient(135deg, #00AEC3 0%, #009AAD 100%);
-  color: #fff;
+  background: var(--pba-gradient);
+  color: var(--text-inverse);
   border: none;
   padding: 0.875rem;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .btn-register:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(74, 144, 164, 0.4);
+  box-shadow: var(--shadow-gradient);
 }
 
 .btn-register:disabled {
@@ -331,7 +331,7 @@ function goToLogin() {
 }
 
 .login-link a {
-  color: #00AEC3;
+  color: var(--pba-celeste);
   text-decoration: none;
   font-weight: 500;
 }

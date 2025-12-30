@@ -117,8 +117,8 @@ const menuItems = computed(() => {
 
 .role-badge {
   display: inline-block;
-  background: linear-gradient(135deg, #00AEC3 0%, #009AAD 100%);
-  color: #fff;
+  background: var(--pba-gradient);
+  color: var(--text-inverse);
   padding: 0.25rem 0.75rem;
   border-radius: 20px;
   font-size: 0.85rem;

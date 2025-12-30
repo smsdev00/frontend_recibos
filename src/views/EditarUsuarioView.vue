@@ -344,7 +344,7 @@ onMounted(() => {
 .btn-back {
   background: transparent;
   border: none;
-  color: #00AEC3;
+  color: var(--pba-celeste);
   font-size: 1rem;
   cursor: pointer;
   padding: 0.5rem;
@@ -458,8 +458,8 @@ onMounted(() => {
 .form-group input:focus,
 .form-group select:focus {
   outline: none;
-  border-color: #00AEC3;
-  box-shadow: 0 0 0 3px rgba(74, 144, 164, 0.1);
+  border-color: var(--pba-celeste);
+  box-shadow: 0 0 0 3px rgba(0, 152, 217, 0.15);
 }
 
 .form-group input:disabled,
@@ -503,12 +503,12 @@ onMounted(() => {
 }
 
 .btn-primary {
-  background: #00AEC3;
+  background: var(--pba-celeste);
   color: #fff;
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: #009AAD;
+  background: var(--pba-celeste-dark);
 }
 
 .btn-primary:disabled {
