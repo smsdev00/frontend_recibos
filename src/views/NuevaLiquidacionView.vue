@@ -12,7 +12,7 @@ const loading = ref(false)
 const error = ref<string | null>(null)
 const success = ref<string | null>(null)
 
-// Estado del progreso WebSocket
+// Estado del progreso WebSocket/SSE
 const showProgress = ref(false)
 const progressStatus = ref('')
 const progressItemType = ref<'personal' | 'recibos' | null>(null)
@@ -22,6 +22,8 @@ const progressPercentage = ref(0)
 const personalCompleted = ref(false)
 const recibosCompleted = ref(false)
 let websocket: WebSocket | null = null
+let eventSource: EventSource | null = null
+let sseCompleted = false
 
 const progressLabel = computed(() => {
   if (progressItemType.value === 'personal') return 'Personal'
@@ -120,11 +122,29 @@ function getWebSocketUrl(liquidacionId: number): string {
   return `${baseUrl}/ws/liquidacion/${liquidacionId}?token=${token}`
 }
 
+function getSSEUrl(liquidacionId: number): string {
+  const token = localStorage.getItem('access_token')
+  const apiUrl = import.meta.env.VITE_API_URL || ''
+  return `${apiUrl}/api/liquidaciones/${liquidacionId}/progress?token=${token}`
+}
+
 function disconnectWebSocket() {
   if (websocket) {
     websocket.close()
     websocket = null
   }
+}
+
+function disconnectSSE() {
+  if (eventSource) {
+    eventSource.close()
+    eventSource = null
+  }
+}
+
+function disconnectAll() {
+  disconnectWebSocket()
+  disconnectSSE()
 }
 
 async function handleSubmit() {
@@ -166,10 +186,15 @@ async function handleSubmit() {
     const response = await liquidacionesApi.procesar(formData)
     const data = response.data
 
-    // Conectar al WebSocket para recibir progreso en tiempo real
+    // Conectar al WebSocket o SSE para recibir progreso en tiempo real
     if (data.liquidacion_id) {
-      connectWebSocket(data.liquidacion_id)
       progressStatus.value = 'Conectando al servidor...'
+      // Si hay sse_url, usar SSE (Symfony), sino usar WebSocket (Python)
+      if (data.sse_url) {
+        connectSSE(data.liquidacion_id)
+      } else {
+        connectWebSocket(data.liquidacion_id)
+      }
     }
 
   } catch (err: unknown) {
@@ -218,7 +243,7 @@ function connectWebSocket(liquidacionId: number) {
         success.value = `Liquidacion procesada exitosamente. Registros de personal: ${formatNumber(data.registros_personal)}, Recibos: ${formatNumber(data.registros_recibos)}`
 
         setTimeout(() => {
-          disconnectWebSocket()
+          disconnectAll()
           showProgress.value = false
           router.push('/liquidaciones')
         }, 2000)
@@ -226,7 +251,7 @@ function connectWebSocket(liquidacionId: number) {
         error.value = data.message || 'Error durante el procesamiento'
         showProgress.value = false
         loading.value = false
-        disconnectWebSocket()
+        disconnectAll()
       }
     } catch (e) {
       console.error('Error parseando mensaje WebSocket:', e)
@@ -238,11 +263,89 @@ function connectWebSocket(liquidacionId: number) {
     error.value = 'Error de conexion con el servidor'
     showProgress.value = false
     loading.value = false
+    disconnectAll()
   }
 
   websocket.onclose = () => {
     console.log('WebSocket desconectado')
   }
+}
+
+function connectSSE(liquidacionId: number) {
+  const sseUrl = getSSEUrl(liquidacionId)
+  eventSource = new EventSource(sseUrl)
+  sseCompleted = false
+
+  eventSource.onopen = () => {
+    console.log('SSE conectado para liquidacion', liquidacionId)
+    progressStatus.value = 'Procesando...'
+  }
+
+  // Handler genérico para todos los eventos
+  const handleEvent = (event: MessageEvent) => {
+    try {
+      const data = JSON.parse(event.data)
+
+      if (data.type === 'status') {
+        progressStatus.value = data.message
+        if (data.message?.toLowerCase().includes('recibos') && progressItemType.value === 'personal') {
+          personalCompleted.value = true
+        }
+      } else if (data.type === 'progress') {
+        if (progressItemType.value === 'personal' && data.item_type === 'recibos') {
+          personalCompleted.value = true
+        }
+        progressItemType.value = data.item_type
+        progressCurrent.value = data.current
+        progressTotal.value = data.total
+        progressPercentage.value = data.percentage
+      } else if (data.type === 'complete') {
+        sseCompleted = true
+        personalCompleted.value = true
+        recibosCompleted.value = true
+        progressStatus.value = 'Completado'
+        progressPercentage.value = 100
+        loading.value = false
+
+        success.value = `Liquidacion procesada exitosamente. Registros de personal: ${formatNumber(data.registros_personal)}, Recibos: ${formatNumber(data.registros_recibos)}`
+
+        setTimeout(() => {
+          disconnectAll()
+          showProgress.value = false
+          router.push('/liquidaciones')
+        }, 2000)
+      } else if (data.type === 'error') {
+        error.value = data.message || 'Error durante el procesamiento'
+        showProgress.value = false
+        loading.value = false
+        disconnectAll()
+      }
+    } catch (e) {
+      console.error('Error parseando mensaje SSE:', e)
+    }
+  }
+
+  // SSE emite eventos con nombres específicos (status, progress, complete, error)
+  eventSource.addEventListener('status', handleEvent)
+  eventSource.addEventListener('progress', handleEvent)
+  eventSource.addEventListener('complete', handleEvent)
+  eventSource.addEventListener('error', (event) => {
+    // Ignorar si ya completamos exitosamente (cierre normal de conexión)
+    if (sseCompleted) {
+      console.log('SSE conexión cerrada después de completar')
+      return
+    }
+    // Verificar si es un error real o solo cierre de conexión
+    if (eventSource?.readyState === EventSource.CLOSED) {
+      console.log('SSE conexión cerrada')
+      return
+    }
+    console.error('Error SSE:', event)
+    error.value = 'Error de conexion con el servidor'
+    showProgress.value = false
+    loading.value = false
+    disconnectAll()
+  })
 }
 
 function goBack() {
@@ -277,7 +380,7 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
-  disconnectWebSocket()
+  disconnectAll()
 })
 </script>
 

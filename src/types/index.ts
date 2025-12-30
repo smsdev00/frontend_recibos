@@ -56,12 +56,15 @@ export interface Liquidacion {
 
 export interface LiquidacionProcesamiento {
   liquidacion_id: number
-  mes: number
-  anio: number
-  tipo: number
-  registros_personal: number
-  registros_recibos: number
+  mes?: number
+  anio?: number
+  tipo?: number
+  registros_personal?: number
+  registros_recibos?: number
   mensaje: string
+  // Python (FastAPI) devuelve ws_url, Symfony devuelve sse_url
+  ws_url?: string
+  sse_url?: string
 }
 
 // Personal
