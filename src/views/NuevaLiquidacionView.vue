@@ -53,6 +53,15 @@ const meses: Record<number, string> = {
   9: 'Septiembre', 10: 'Octubre', 11: 'Noviembre', 12: 'Diciembre'
 }
 
+// Limite de tamaño de archivo (50MB, igual que el backend)
+const MAX_FILE_SIZE = 50 * 1024 * 1024
+
+function formatFileSize(bytes: number): string {
+  if (bytes < 1024) return bytes + ' B'
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB'
+  return (bytes / (1024 * 1024)).toFixed(1) + ' MB'
+}
+
 const periodoDetectado = computed(() => {
   if (mesDetectado.value && anioDetectado.value) {
     return `${meses[mesDetectado.value]} ${anioDetectado.value}`
@@ -65,6 +74,14 @@ function handleFilePersonal(event: Event) {
   const file = target.files?.[0]
   if (file) {
     error.value = null
+
+    // Validar tamaño
+    if (file.size > MAX_FILE_SIZE) {
+      error.value = `El archivo "${file.name}" excede el limite de 50MB (${formatFileSize(file.size)})`
+      target.value = ''
+      return
+    }
+
     const info = extraerMesAnioArchivo(file.name)
     if (!info) {
       error.value = `No se pudo extraer mes/año del archivo "${file.name}". Formato esperado: PERSmmaa.TXT`
@@ -90,6 +107,14 @@ function handleFileRecibos(event: Event) {
   const file = target.files?.[0]
   if (file) {
     error.value = null
+
+    // Validar tamaño
+    if (file.size > MAX_FILE_SIZE) {
+      error.value = `El archivo "${file.name}" excede el limite de 50MB (${formatFileSize(file.size)})`
+      target.value = ''
+      return
+    }
+
     const info = extraerMesAnioArchivo(file.name)
     if (!info) {
       error.value = `No se pudo extraer mes/año del archivo "${file.name}". Formato esperado: RECmmaa.TXT`
