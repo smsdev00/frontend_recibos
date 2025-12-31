@@ -100,6 +100,12 @@ function verRecibo(id: number) {
   router.push(`/recibos/${id}`)
 }
 
+function soloNumeros(event: KeyboardEvent) {
+  if (!/\d/.test(event.key)) {
+    event.preventDefault()
+  }
+}
+
 onMounted(() => {
   constantsStore.fetchConstants()
 })
@@ -123,6 +129,7 @@ onMounted(() => {
               placeholder="Numero de DNI"
               min="100000"
               required
+              @keypress="soloNumeros"
             />
           </div>
           <div class="form-group">

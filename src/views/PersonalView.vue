@@ -72,6 +72,18 @@ function formatCuil(cuil: number) {
   return `${cuilStr.slice(0, 2)}-${cuilStr.slice(2, 10)}-${cuilStr.slice(10)}`
 }
 
+function soloNumeros(event: KeyboardEvent) {
+  if (!/\d/.test(event.key)) {
+    event.preventDefault()
+  }
+}
+
+function sinNumeros(event: KeyboardEvent) {
+  if (/\d/.test(event.key)) {
+    event.preventDefault()
+  }
+}
+
 onMounted(() => {
   fetchPersonal()
 })
@@ -93,6 +105,7 @@ onMounted(() => {
               type="number"
               placeholder="Numero"
               min="100000"
+              @keypress="soloNumeros"
             />
           </div>
           <div class="form-group">
@@ -102,6 +115,7 @@ onMounted(() => {
               type="number"
               placeholder="Numero"
               min="100000"
+              @keypress="soloNumeros"
             />
           </div>
           <div class="form-group">
@@ -110,6 +124,7 @@ onMounted(() => {
               v-model="filtros.nombre"
               type="text"
               placeholder="Buscar nombre"
+              @keypress="sinNumeros"
             />
           </div>
           <div class="form-group">

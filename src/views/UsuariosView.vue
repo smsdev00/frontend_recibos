@@ -88,6 +88,18 @@ function editarUsuario(id: number) {
   router.push(`/usuarios/${id}`)
 }
 
+function soloNumeros(event: KeyboardEvent) {
+  if (!/\d/.test(event.key)) {
+    event.preventDefault()
+  }
+}
+
+function sinNumeros(event: KeyboardEvent) {
+  if (/\d/.test(event.key)) {
+    event.preventDefault()
+  }
+}
+
 onMounted(() => {
   constantsStore.fetchConstants()
   fetchUsuarios()
@@ -117,6 +129,7 @@ onMounted(() => {
               type="text"
               placeholder="Numero"
               minlength="6"
+              @keypress="soloNumeros"
             />
           </div>
           <div class="form-group">
@@ -126,6 +139,7 @@ onMounted(() => {
               type="number"
               placeholder="Numero"
               min="100000"
+              @keypress="soloNumeros"
             />
           </div>
           <div class="form-group">
@@ -134,6 +148,7 @@ onMounted(() => {
               v-model="filtros.nombre"
               type="text"
               placeholder="Nombre"
+              @keypress="sinNumeros"
             />
           </div>
           <div class="form-group">
