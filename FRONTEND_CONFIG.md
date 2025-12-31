@@ -30,14 +30,13 @@ Como `VITE_API_URL` esta vacia, `API_URL = ''`, lo que significa que todas las l
 
 ```
 ┌─────────────┐     ┌─────────────┐     ┌─────────────┐
-│   Browser   │────▶│    Nginx    │────▶│   FastAPI   │
+│   Browser   │────▶│    Nginx    │────▶│  Symfony    │
 │             │     │   (puerto   │     │  (puerto    │
-│             │     │    5173)    │     │   8300)     │
+│             │     │    5173)    │     │    80)      │
 └─────────────┘     └─────────────┘     └─────────────┘
                           │
                     Reverse Proxy
-                    /api/* → api:8300
-                    /ws/*  → api:8300
+                    /api/* → api-symfony:80
 ```
 
 El frontend hace requests a `/api/*` en su propio dominio, y Nginx los proxea al backend.
@@ -52,8 +51,8 @@ El frontend hace requests a `/api/*` en su propio dominio, y Nginx los proxea al
 
 | Variable | Default | Uso |
 |----------|---------|-----|
-| `API_HOST` | `api` | Hostname del container backend |
-| `API_PORT` | `8300` | Puerto del backend |
+| `API_HOST` | `api-symfony` | Hostname del container backend |
+| `API_PORT` | `80` | Puerto del backend |
 
 Estas variables se resuelven en **runtime** cuando el container inicia (no en build time).
 
@@ -61,9 +60,8 @@ Estas variables se resuelven en **runtime** cuando el container inicia (no en bu
 
 | Location | Destino | Descripcion |
 |----------|---------|-------------|
-| `/api/*` | `http://api:8300/api/` | API REST |
-| `/ws/*` | `http://api:8300/ws/` | WebSocket |
-| `/health` | `http://api:8300/health` | Health check |
+| `/api/*` | `http://api-symfony:80/api/` | API REST |
+| `/health` | `http://api-symfony:80/health` | Health check |
 | `/*` | `/index.html` | SPA fallback |
 
 ### Configuraciones Importantes
@@ -120,12 +118,12 @@ location ~* \.(js|css|png|...)$ {
 ```yaml
 frontend:
   environment:
-    API_HOST: api          # Nombre del servicio backend
-    API_PORT: ${API_PORT}  # Desde .env del backend (8300)
+    API_HOST: ${API_HOST:-api-symfony}    # Nombre del servicio backend
+    API_PORT: ${API_INTERNAL_PORT:-80}    # Puerto interno del backend
   ports:
     - "${FRONTEND_PORT:-5173}:80"
   depends_on:
-    - api
+    - api-symfony
 ```
 
 ---
@@ -135,7 +133,7 @@ frontend:
 1. **Sin rebuild para cambiar backend**: Solo cambiar `API_HOST`/`API_PORT` y reiniciar container
 2. **Sin CORS**: Frontend y API comparten el mismo origen desde el browser
 3. **Cache eficiente**: Assets estaticos con cache de 1 año
-4. **WebSocket funciona**: Nginx maneja upgrade de conexion
+4. **SSE funciona**: Nginx maneja conexiones de larga duracion para progreso en tiempo real
 
 ---
 
@@ -145,7 +143,7 @@ Si se quiere correr `npm run dev` fuera de Docker, hay dos opciones:
 
 ### Opcion 1: Usar VITE_API_URL
 ```env
-VITE_API_URL=http://localhost:8300
+VITE_API_URL=http://localhost:8301
 ```
 
 ### Opcion 2: Configurar proxy en vite.config.ts
@@ -153,11 +151,7 @@ VITE_API_URL=http://localhost:8300
 export default defineConfig({
   server: {
     proxy: {
-      '/api': 'http://localhost:8300',
-      '/ws': {
-        target: 'ws://localhost:8300',
-        ws: true
-      }
+      '/api': 'http://localhost:8301'
     }
   }
 })

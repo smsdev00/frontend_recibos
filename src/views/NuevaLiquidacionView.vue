@@ -12,7 +12,7 @@ const loading = ref(false)
 const error = ref<string | null>(null)
 const success = ref<string | null>(null)
 
-// Estado del progreso WebSocket/SSE
+// Estado del progreso SSE
 const showProgress = ref(false)
 const progressStatus = ref('')
 const progressItemType = ref<'personal' | 'recibos' | null>(null)
@@ -21,9 +21,8 @@ const progressTotal = ref(0)
 const progressPercentage = ref(0)
 const personalCompleted = ref(false)
 const recibosCompleted = ref(false)
-let websocket: WebSocket | null = null
 let eventSource: EventSource | null = null
-let sseCompleted = false
+let progressCompleted = false
 
 const progressLabel = computed(() => {
   if (progressItemType.value === 'personal') return 'Personal'
@@ -139,37 +138,17 @@ function handleFileRecibos(event: Event) {
   }
 }
 
-function getWebSocketUrl(liquidacionId: number): string {
-  const token = localStorage.getItem('access_token')
-  const apiUrl = import.meta.env.VITE_API_URL || window.location.origin
-  const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-  const baseUrl = apiUrl.replace(/^https?:/, wsProtocol)
-  return `${baseUrl}/ws/liquidacion/${liquidacionId}?token=${token}`
-}
-
-function getSSEUrl(liquidacionId: number): string {
+function getProgressUrl(liquidacionId: number): string {
   const token = localStorage.getItem('access_token')
   const apiUrl = import.meta.env.VITE_API_URL || ''
   return `${apiUrl}/api/liquidaciones/${liquidacionId}/progress?token=${token}`
 }
 
-function disconnectWebSocket() {
-  if (websocket) {
-    websocket.close()
-    websocket = null
-  }
-}
-
-function disconnectSSE() {
+function disconnectProgress() {
   if (eventSource) {
     eventSource.close()
     eventSource = null
   }
-}
-
-function disconnectAll() {
-  disconnectWebSocket()
-  disconnectSSE()
 }
 
 async function handleSubmit() {
@@ -211,15 +190,10 @@ async function handleSubmit() {
     const response = await liquidacionesApi.procesar(formData)
     const data = response.data
 
-    // Conectar al WebSocket o SSE para recibir progreso en tiempo real
+    // Conectar a SSE para recibir progreso en tiempo real
     if (data.liquidacion_id) {
       progressStatus.value = 'Conectando al servidor...'
-      // Si hay sse_url, usar SSE (Symfony), sino usar WebSocket (Python)
-      if (data.sse_url) {
-        connectSSE(data.liquidacion_id)
-      } else {
-        connectWebSocket(data.liquidacion_id)
-      }
+      connectProgress(data.liquidacion_id)
     }
 
   } catch (err: unknown) {
@@ -230,83 +204,16 @@ async function handleSubmit() {
   }
 }
 
-function connectWebSocket(liquidacionId: number) {
-  const wsUrl = getWebSocketUrl(liquidacionId)
-  websocket = new WebSocket(wsUrl)
-
-  websocket.onopen = () => {
-    console.log('WebSocket conectado para liquidacion', liquidacionId)
-    progressStatus.value = 'Procesando...'
-  }
-
-  websocket.onmessage = (event) => {
-    try {
-      const data = JSON.parse(event.data)
-
-      if (data.type === 'status') {
-        progressStatus.value = data.message
-        // Detectar cuando se completa personal y empieza recibos
-        if (data.message?.toLowerCase().includes('recibos') && progressItemType.value === 'personal') {
-          personalCompleted.value = true
-        }
-      } else if (data.type === 'progress') {
-        // Si cambiamos de personal a recibos, marcar personal como completado
-        if (progressItemType.value === 'personal' && data.item_type === 'recibos') {
-          personalCompleted.value = true
-        }
-        progressItemType.value = data.item_type
-        progressCurrent.value = data.current
-        progressTotal.value = data.total
-        progressPercentage.value = data.percentage
-      } else if (data.type === 'complete') {
-        personalCompleted.value = true
-        recibosCompleted.value = true
-        progressStatus.value = 'Completado'
-        progressPercentage.value = 100
-        loading.value = false
-
-        success.value = `Liquidacion procesada exitosamente. Registros de personal: ${formatNumber(data.registros_personal)}, Recibos: ${formatNumber(data.registros_recibos)}`
-
-        setTimeout(() => {
-          disconnectAll()
-          showProgress.value = false
-          router.push('/liquidaciones')
-        }, 2000)
-      } else if (data.type === 'error') {
-        error.value = data.message || 'Error durante el procesamiento'
-        showProgress.value = false
-        loading.value = false
-        disconnectAll()
-      }
-    } catch (e) {
-      console.error('Error parseando mensaje WebSocket:', e)
-    }
-  }
-
-  websocket.onerror = (event) => {
-    console.error('Error WebSocket:', event)
-    error.value = 'Error de conexion con el servidor'
-    showProgress.value = false
-    loading.value = false
-    disconnectAll()
-  }
-
-  websocket.onclose = () => {
-    console.log('WebSocket desconectado')
-  }
-}
-
-function connectSSE(liquidacionId: number) {
-  const sseUrl = getSSEUrl(liquidacionId)
-  eventSource = new EventSource(sseUrl)
-  sseCompleted = false
+function connectProgress(liquidacionId: number) {
+  const progressUrl = getProgressUrl(liquidacionId)
+  eventSource = new EventSource(progressUrl)
+  progressCompleted = false
 
   eventSource.onopen = () => {
-    console.log('SSE conectado para liquidacion', liquidacionId)
+    console.log('Progreso conectado para liquidacion', liquidacionId)
     progressStatus.value = 'Procesando...'
   }
 
-  // Handler genérico para todos los eventos
   const handleEvent = (event: MessageEvent) => {
     try {
       const data = JSON.parse(event.data)
@@ -325,7 +232,7 @@ function connectSSE(liquidacionId: number) {
         progressTotal.value = data.total
         progressPercentage.value = data.percentage
       } else if (data.type === 'complete') {
-        sseCompleted = true
+        progressCompleted = true
         personalCompleted.value = true
         recibosCompleted.value = true
         progressStatus.value = 'Completado'
@@ -335,7 +242,7 @@ function connectSSE(liquidacionId: number) {
         success.value = `Liquidacion procesada exitosamente. Registros de personal: ${formatNumber(data.registros_personal)}, Recibos: ${formatNumber(data.registros_recibos)}`
 
         setTimeout(() => {
-          disconnectAll()
+          disconnectProgress()
           showProgress.value = false
           router.push('/liquidaciones')
         }, 2000)
@@ -343,33 +250,30 @@ function connectSSE(liquidacionId: number) {
         error.value = data.message || 'Error durante el procesamiento'
         showProgress.value = false
         loading.value = false
-        disconnectAll()
+        disconnectProgress()
       }
     } catch (e) {
-      console.error('Error parseando mensaje SSE:', e)
+      console.error('Error parseando mensaje de progreso:', e)
     }
   }
 
-  // SSE emite eventos con nombres específicos (status, progress, complete, error)
   eventSource.addEventListener('status', handleEvent)
   eventSource.addEventListener('progress', handleEvent)
   eventSource.addEventListener('complete', handleEvent)
   eventSource.addEventListener('error', (event) => {
-    // Ignorar si ya completamos exitosamente (cierre normal de conexión)
-    if (sseCompleted) {
-      console.log('SSE conexión cerrada después de completar')
+    if (progressCompleted) {
+      console.log('Conexión cerrada después de completar')
       return
     }
-    // Verificar si es un error real o solo cierre de conexión
     if (eventSource?.readyState === EventSource.CLOSED) {
-      console.log('SSE conexión cerrada')
+      console.log('Conexión de progreso cerrada')
       return
     }
-    console.error('Error SSE:', event)
+    console.error('Error de progreso:', event)
     error.value = 'Error de conexion con el servidor'
     showProgress.value = false
     loading.value = false
-    disconnectAll()
+    disconnectProgress()
   })
 }
 
@@ -405,7 +309,7 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
-  disconnectAll()
+  disconnectProgress()
 })
 </script>
 
