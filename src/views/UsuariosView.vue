@@ -118,6 +118,26 @@ function limitarLegajo(event: Event) {
   }
 }
 
+function limitarNombre(event: Event) {
+  const input = event.target as HTMLInputElement
+  const max = 100
+  let value = input.value.replace(/\d/g, '')
+  if (value.length > max) {
+    value = value.slice(0, max)
+  }
+  input.value = value
+  filtros.value.nombre = value || undefined
+}
+
+function limitarEmail(event: Event) {
+  const input = event.target as HTMLInputElement
+  const max = 100
+  if (input.value.length > max) {
+    input.value = input.value.slice(0, max)
+    filtros.value.email = input.value
+  }
+}
+
 onMounted(() => {
   constantsStore.fetchConstants()
   fetchUsuarios()
@@ -170,7 +190,9 @@ onMounted(() => {
               v-model="filtros.nombre"
               type="text"
               placeholder="Nombre"
+              maxlength="100"
               @keypress="sinNumeros"
+              @input="limitarNombre"
             />
           </div>
           <div class="form-group">
@@ -179,6 +201,8 @@ onMounted(() => {
               v-model="filtros.email"
               type="email"
               placeholder="Email"
+              maxlength="100"
+              @input="limitarEmail"
             />
           </div>
           <div class="form-group">

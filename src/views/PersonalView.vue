@@ -102,6 +102,17 @@ function limitarLegajo(event: Event) {
   }
 }
 
+function limitarNombre(event: Event) {
+  const input = event.target as HTMLInputElement
+  const max = 100
+  let value = input.value.replace(/\d/g, '')
+  if (value.length > max) {
+    value = value.slice(0, max)
+  }
+  input.value = value
+  filtros.value.nombre = value || undefined
+}
+
 onMounted(() => {
   fetchPersonal()
 })
@@ -146,7 +157,9 @@ onMounted(() => {
               v-model="filtros.nombre"
               type="text"
               placeholder="Buscar nombre"
+              maxlength="100"
               @keypress="sinNumeros"
+              @input="limitarNombre"
             />
           </div>
           <div class="form-group">
