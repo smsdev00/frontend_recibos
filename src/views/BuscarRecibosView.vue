@@ -106,6 +106,15 @@ function soloNumeros(event: KeyboardEvent) {
   }
 }
 
+function limitarDni(event: Event) {
+  const input = event.target as HTMLInputElement
+  const max = 999999999
+  if (Number(input.value) > max) {
+    input.value = String(max)
+    filtros.value.dni = max
+  }
+}
+
 onMounted(() => {
   constantsStore.fetchConstants()
 })
@@ -128,8 +137,10 @@ onMounted(() => {
               type="number"
               placeholder="Numero de DNI"
               min="100000"
+              max="999999999"
               required
               @keypress="soloNumeros"
+              @input="limitarDni"
             />
           </div>
           <div class="form-group">

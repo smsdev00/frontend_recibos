@@ -100,6 +100,24 @@ function sinNumeros(event: KeyboardEvent) {
   }
 }
 
+function limitarDni(event: Event) {
+  const input = event.target as HTMLInputElement
+  const max = 999999999
+  if (Number(input.value) > max) {
+    input.value = String(max)
+    filtros.value.username = String(max)
+  }
+}
+
+function limitarLegajo(event: Event) {
+  const input = event.target as HTMLInputElement
+  const max = 999999
+  if (Number(input.value) > max) {
+    input.value = String(max)
+    filtros.value.legajo = max
+  }
+}
+
 onMounted(() => {
   constantsStore.fetchConstants()
   fetchUsuarios()
@@ -129,7 +147,9 @@ onMounted(() => {
               type="text"
               placeholder="Numero"
               minlength="6"
+              maxlength="9"
               @keypress="soloNumeros"
+              @input="limitarDni"
             />
           </div>
           <div class="form-group">
@@ -139,7 +159,9 @@ onMounted(() => {
               type="number"
               placeholder="Numero"
               min="100000"
+              max="999999"
               @keypress="soloNumeros"
+              @input="limitarLegajo"
             />
           </div>
           <div class="form-group">
