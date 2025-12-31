@@ -26,10 +26,26 @@ async function handleLogin() {
   }
 }
 
-async function isNumberKey(event: KeyboardEvent) {
+function isNumberKey(event: KeyboardEvent) {
   const charCode = event.keyCode || event.which
   if (charCode < 48 || charCode > 57) {
     event.preventDefault()
+  }
+}
+
+function limitUsernameLength(event: Event) {
+  const input = event.target as HTMLInputElement
+  if (input.value.length > 9) {
+    input.value = input.value.slice(0, 9)
+    username.value = input.value
+  }
+}
+
+function limitPasswordLength(event: Event) {
+  const input = event.target as HTMLInputElement
+  if (input.value.length > 100) {
+    input.value = input.value.slice(0, 100)
+    password.value = input.value
   }
 }
 
@@ -55,8 +71,10 @@ async function isNumberKey(event: KeyboardEvent) {
             placeholder="Ingrese su usuario"
             required
             minlength="6"
+            maxlength="9"
             autocomplete="username"
             @keypress="isNumberKey"
+            @input="limitUsernameLength"
         />
         </div>
 
@@ -69,7 +87,9 @@ async function isNumberKey(event: KeyboardEvent) {
               :type="showPassword ? 'text' : 'password'"
               placeholder="Ingrese su contraseña"
               required
+              maxlength="100"
               autocomplete="current-password"
+              @input="limitPasswordLength"
             />
             <button
               type="button"
