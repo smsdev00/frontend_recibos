@@ -230,6 +230,7 @@ export const personalApi = {
     cuil?: string
     ley?: string
     nombre?: string
+    tipo?: number
   }) => api.get<PaginatedResponse<Personal>>('/api/personal', { params })
 }
 

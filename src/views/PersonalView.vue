@@ -11,7 +11,8 @@ const filtros = ref({
   legajo: undefined as number | undefined,
   nombre: undefined as string | undefined,
   programa: undefined as string | undefined,
-  doc_nro: undefined as number | undefined
+  doc_nro: undefined as number | undefined,
+  tipo: 1 as number
 })
 
 const pagination = ref({
@@ -33,6 +34,7 @@ async function fetchPersonal() {
     if (filtros.value.nombre) params.nombre = filtros.value.nombre
     if (filtros.value.programa) params.programa = filtros.value.programa
     if (filtros.value.doc_nro) params.doc_nro = filtros.value.doc_nro
+    if (filtros.value.tipo) params.tipo = filtros.value.tipo
 
     const response = await personalApi.list(params)
     const data: PaginatedResponse<Personal> = response.data
@@ -57,7 +59,8 @@ function limpiarFiltros() {
     legajo: undefined,
     nombre: undefined,
     programa: undefined,
-    doc_nro: undefined
+    doc_nro: undefined,
+    tipo: 1
   }
   pagination.value.page = 1
 }
@@ -169,6 +172,13 @@ onMounted(() => {
               type="text"
               placeholder="Codigo"
             />
+          </div>
+          <div class="form-group">
+            <label>Tipo Liquidacion</label>
+            <select v-model.number="filtros.tipo">
+              <option :value="1">Sueldo</option>
+              <option :value="4">Sueldo Sala</option>
+            </select>
           </div>
 
           <div class="form-group form-actions">
@@ -297,13 +307,15 @@ onMounted(() => {
   font-size: 0.85rem;
 }
 
-.form-group input {
+.form-group input,
+.form-group select {
   padding: 0.5rem 0.75rem;
   border: 1px solid #ddd;
   border-radius: 6px;
 }
 
-.form-group input:focus {
+.form-group input:focus,
+.form-group select:focus {
   outline: none;
   border-color: var(--pba-celeste);
 }
