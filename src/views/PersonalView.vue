@@ -177,7 +177,7 @@ onMounted(() => {
             <label>Tipo Liquidacion</label>
             <select v-model.number="filtros.tipo">
               <option :value="1">Sueldo</option>
-              <option :value="4">Sueldo Sala</option>
+              <option :value="5">Sueldo Sala</option>
             </select>
           </div>
 
